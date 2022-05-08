@@ -213,62 +213,43 @@ func getRemainingPieces(grid Grid, p Player) int {
 
 func runMonteCarloSearch(grid Grid, player Player) Action {
 	rootActions := getValidActions(grid, player)
-	//debug("rootActions", rootActions)
-
 	nbGamesPerRootAction := NB_GAMES_PER_ROOT_ACTION_TOTAL / len(rootActions)
-
 	rootResults := make(map[Action]MonteCarloResult)
 
-	// run 1000 full games per root action, and store the winning rate
-	// the loser is the player that is unable to play
-	for _, rootAction := range rootActions {
+	for iAction, rootAction := range rootActions {
 		var wins int
 		var games int
 		for i := 0; i < nbGamesPerRootAction; i++ {
 			currentGrid := grid
 			currentPlayer := player
-
 			depth := 0
 			for depth = 0; ; depth++ {
 				if depth > 8*8 {
 					panic("depth too high")
 				}
 
-				//remainingCount := getRemainingPieces(currentGrid, currentPlayer)
-
 				validActions := getValidActions(currentGrid, currentPlayer)
 				if len(validActions) == 0 {
 					break
 				}
-
-				//debug("depth", depth, "validActions", len(validActions), "remainingCount", remainingCount)
-
 				action := validActions[rand.Intn(len(validActions))]
-
 				afterGrid := applyAction(currentGrid, action)
-				//debug("before", currentGrid)
-				//debug("after", afterGrid)
-
 				currentGrid = afterGrid
-
 				currentPlayer = getOpponent(currentPlayer)
 			}
 
 			isWinning := currentPlayer != player
-
 			if isWinning {
 				wins++
 			}
 			games++
-
-			//debug("Game", i, "/", NB_GAMES_PER_ROOT_ACTION, "finished at depth", depth, "is winning", isWinning)
 		}
 		rootResults[rootAction] = MonteCarloResult{
 			wins:  wins,
 			games: games,
 		}
 
-		//debug("Sampling root action", rootAction, "(", iAction, "/", len(rootActions), ") wins", wins, "games /", games)
+		debug("Sampling root action", rootAction, "(", iAction, "/", len(rootActions), ") wins", wins, "games /", games)
 	}
 
 	// find the action with the highest win rate
