@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"strconv"
 )
 
 type Grid = [8][8]Cell
@@ -94,9 +95,10 @@ func main() {
 		fmt.Scan(&actionsCount)
 
 		validActions := getValidActions(grid, myPlayer)
+		debug("validActions", validActions)
 
 		if len(validActions) != actionsCount {
-			panic("invalid number of actions: " + string(len(validActions)) + " != " + string(actionsCount))
+			panic("invalid number of actions: " + strconv.Itoa(len(validActions)) + " != " + strconv.Itoa(actionsCount))
 		}
 
 		// fmt.Fprintln(os.Stderr, "Debug messages...")
