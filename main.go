@@ -100,10 +100,12 @@ func main() {
 		for {
 			grid := Grid{}
 
+			startTime := int64(0)
 			for i := 0; i < boardSize; i++ {
 				// line: horizontal row
 				var line string
 				fmt.Scan(&line)
+				startTime = time.Now().UnixMilli()
 
 				for j := 0; j < boardSize; j++ {
 					grid[i][j] = charToCell(line[j])
@@ -128,13 +130,13 @@ func main() {
 			}
 
 			//debug("Starting Monte Carlo")
-			bestAction := runMonteCarloSearch(grid, myPlayer)
+			bestAction := runMonteCarloSearch(grid, myPlayer, startTime)
 			debug("bestAction", bestAction)
 
 			fmt.Println(displayCoord(bestAction.From) + displayCoord(bestAction.To))
 		}
 	} else {
-		best := runMonteCarloSearch(startGrid, WhitePlayer)
+		best := runMonteCarloSearch(startGrid, WhitePlayer, 0)
 		debug("best", best)
 	}
 }
@@ -213,47 +215,55 @@ func getRemainingPieces(grid Grid, p Player) int {
 	return count
 }
 
-func runMonteCarloSearch(grid Grid, player Player) Action {
+func runMonteCarloSearch(grid Grid, player Player, startTime int64) Action {
 	rootActions := getValidActions(grid, player)
-	nbGamesPerRootAction := NB_GAMES_PER_ROOT_ACTION_TOTAL / len(rootActions)
+	//nbGamesPerRootAction := NB_GAMES_PER_ROOT_ACTION_TOTAL / len(rootActions)
 	rootResults := make(map[Action]MonteCarloResult)
 
-	for iAction, rootAction := range rootActions {
+	actionRobin := 0
+
+	for (time.Now().UnixMilli() - startTime) < 150 {
+		rootAction := rootActions[actionRobin%len(rootActions)]
 		afterRootActionGrid := applyAction(grid, rootAction)
 
-		var wins = 0
-		var games = 0
-		for i := 0; i < nbGamesPerRootAction; i++ {
-			currentGrid := afterRootActionGrid
-			currentPlayer := getOpponent(player)
-			depth := 0
-			for depth = 0; ; depth++ {
-				if depth > 8*8 {
-					panic("depth too high")
-				}
-
-				validActions := getValidActions(currentGrid, currentPlayer)
-				if len(validActions) == 0 {
-					break
-				}
-				action := validActions[rand.Intn(len(validActions))]
-				afterGrid := applyAction(currentGrid, action)
-				currentGrid = afterGrid
-				currentPlayer = getOpponent(currentPlayer)
+		currentGrid := afterRootActionGrid
+		currentPlayer := getOpponent(player)
+		depth := 0
+		for depth = 0; ; depth++ {
+			if depth > 8*8 {
+				panic("depth too high")
 			}
 
-			isWinning := currentPlayer != player
-			if isWinning {
-				wins++
+			validActions := getValidActions(currentGrid, currentPlayer)
+			if len(validActions) == 0 {
+				break
 			}
-			games++
-		}
-		rootResults[rootAction] = MonteCarloResult{
-			wins:  wins,
-			games: games,
+			action := validActions[rand.Intn(len(validActions))]
+			afterGrid := applyAction(currentGrid, action)
+			currentGrid = afterGrid
+			currentPlayer = getOpponent(currentPlayer)
 		}
 
-		debug("RootAction", rootAction, "(", iAction, "/", len(rootActions), ")", wins, "wins /", games)
+		isWinning := currentPlayer != player
+
+		winScore := 0
+		if isWinning {
+			winScore = 1
+		}
+
+		existing, ok := rootResults[rootAction]
+		if !ok {
+			rootResults[rootAction] = MonteCarloResult{
+				wins:  winScore,
+				games: 1,
+			}
+		} else {
+			existing.wins += winScore
+			existing.games++
+			rootResults[rootAction] = existing
+		}
+
+		actionRobin++
 	}
 
 	// find the action with the highest win rate
