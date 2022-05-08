@@ -7,7 +7,7 @@ import (
 	"strconv"
 )
 
-const NB_GAMES_PER_ROOT_ACTION = 10
+const NB_GAMES_PER_ROOT_ACTION_TOTAL = 1000
 const IS_CG = true
 
 type Grid = [8][8]Cell
@@ -215,6 +215,8 @@ func runMonteCarloSearch(grid Grid, player Player) Action {
 	rootActions := getValidActions(grid, player)
 	//debug("rootActions", rootActions)
 
+	nbGamesPerRootAction := NB_GAMES_PER_ROOT_ACTION_TOTAL / len(rootActions)
+
 	rootResults := make(map[Action]MonteCarloResult)
 
 	// run 1000 full games per root action, and store the winning rate
@@ -222,7 +224,7 @@ func runMonteCarloSearch(grid Grid, player Player) Action {
 	for _, rootAction := range rootActions {
 		var wins int
 		var games int
-		for i := 0; i < NB_GAMES_PER_ROOT_ACTION; i++ {
+		for i := 0; i < nbGamesPerRootAction; i++ {
 			currentGrid := grid
 			currentPlayer := player
 
@@ -278,7 +280,7 @@ func runMonteCarloSearch(grid Grid, player Player) Action {
 			bestRate = rate
 			bestAction = rootAction
 
-			debug("bestAction", bestAction, "bestRate", bestRate)
+			debug("bestAction", bestAction, "bestRate", fmt.Sprintf("%.2f", bestRate), "(", rootResults[bestAction].wins, "/", rootResults[bestAction].games, ")")
 		}
 	}
 	return bestAction
