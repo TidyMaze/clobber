@@ -81,6 +81,8 @@ func parsePlayer(c byte) Player {
 }
 
 func main() {
+	rand.Seed(42)
+
 	if IS_CG {
 
 		// boardSize: height and width of the board
@@ -269,7 +271,7 @@ func runMonteCarloSearch(grid Grid, player Player) Action {
 
 	// find the action with the highest win rate
 	var bestAction Action
-	var bestRate float64
+	var bestRate = float64(-1)
 	for _, rootAction := range rootActions {
 		rate := float64(rootResults[rootAction].wins) / float64(rootResults[rootAction].games)
 		if rate > bestRate {
