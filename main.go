@@ -182,9 +182,9 @@ func applyAction(grid Grid, action Action) Grid {
 }
 
 func isValidMove(grid Grid, from Coord, to Coord) bool {
-	return grid[from.x][from.y] != Empty &&
-		grid[to.x][to.y] != Empty &&
-		grid[to.x][to.y] != grid[from.x][from.y]
+	return grid[from.y][from.x] != Empty &&
+		grid[to.y][to.x] == Empty &&
+		grid[to.y][to.x] != grid[from.y][from.x]
 }
 
 func getOpponent(p Player) Player {
