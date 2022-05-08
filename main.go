@@ -249,7 +249,7 @@ func runMonteCarloSearch(grid Grid, player Player) Action {
 			games: games,
 		}
 
-		debug("Sampling root action", rootAction, "(", iAction, "/", len(rootActions), ") wins", wins, "games /", games)
+		debug("RootAction", rootAction, "(", iAction, "/", len(rootActions), ")", wins, "wins /", games)
 	}
 
 	// find the action with the highest win rate
