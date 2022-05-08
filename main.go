@@ -7,7 +7,7 @@ import (
 	"strconv"
 )
 
-const NB_GAMES_PER_ROOT_ACTION_TOTAL = 1000
+const NB_GAMES_PER_ROOT_ACTION_TOTAL = 2000
 const IS_CG = true
 
 type Grid = [8][8]Cell
