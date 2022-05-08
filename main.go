@@ -192,6 +192,7 @@ func runMonteCarloSearch(grid Grid, player Player) Action {
 		var wins int
 		var games int
 		for i := 0; i < NB_GAMES_PER_ROOT_ACTION; i++ {
+			debug("Game", i, "/", NB_GAMES_PER_ROOT_ACTION)
 			currentGrid := grid
 			currentPlayer := player
 
