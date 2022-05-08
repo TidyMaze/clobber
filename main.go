@@ -218,7 +218,6 @@ func runMonteCarloSearch(grid Grid, player Player) Action {
 	// run 1000 full games per root action, and store the winning rate
 	// the loser is the player that is unable to play
 	for iAction, rootAction := range rootActions {
-		debug("Sampling root action", rootAction, "(", iAction, "/", len(rootActions), ")")
 		var wins int
 		var games int
 		for i := 0; i < NB_GAMES_PER_ROOT_ACTION; i++ {
@@ -258,14 +257,14 @@ func runMonteCarloSearch(grid Grid, player Player) Action {
 			}
 			games++
 
-			debug("Game", i, "/", NB_GAMES_PER_ROOT_ACTION, "finished at depth", depth, "is winning", isWinning)
+			//debug("Game", i, "/", NB_GAMES_PER_ROOT_ACTION, "finished at depth", depth, "is winning", isWinning)
 		}
 		rootResults[rootAction] = MonteCarloResult{
 			wins:  wins,
 			games: games,
 		}
 
-		debug("rootAction", rootAction, "wins", wins, "games", games)
+		debug("Sampling root action", rootAction, "(", iAction, "/", len(rootActions), ") wins", wins, "games /", games)
 	}
 
 	// find the action with the highest win rate
