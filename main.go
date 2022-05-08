@@ -146,6 +146,12 @@ func getValidActions(grid Grid, player Player) []Action {
 	return actions
 }
 
+func applyAction(grid Grid, action Action) Grid {
+	grid[action.To.y][action.To.x] = grid[action.From.y][action.From.x]
+	grid[action.From.y][action.From.x] = Empty
+	return grid
+}
+
 func isValidMove(grid Grid, from Coord, to Coord) bool {
 	return grid[from.x][from.y] != Empty &&
 		grid[to.x][to.y] != Empty &&
