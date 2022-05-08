@@ -196,7 +196,8 @@ func runMonteCarloSearch(grid Grid, player Player) Action {
 			currentGrid := grid
 			currentPlayer := player
 
-			for {
+			for depth := 0; ; depth++ {
+				debug("depth", depth)
 				validActions := getValidActions(currentGrid, currentPlayer)
 				if len(validActions) == 0 {
 					break
