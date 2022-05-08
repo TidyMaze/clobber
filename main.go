@@ -251,12 +251,14 @@ func runMonteCarloSearch(grid Grid, player Player) Action {
 				currentPlayer = getOpponent(currentPlayer)
 			}
 
-			if currentPlayer != player {
+			isWinning := currentPlayer != player
+
+			if isWinning {
 				wins++
 			}
 			games++
 
-			debug("Game", i, "/", NB_GAMES_PER_ROOT_ACTION, "finished at depth", depth)
+			debug("Game", i, "/", NB_GAMES_PER_ROOT_ACTION, "finished at depth", depth, "is winning", isWinning)
 		}
 		rootResults[rootAction] = MonteCarloResult{
 			wins:  wins,
