@@ -2,9 +2,12 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
 	"os"
 	"strconv"
 )
+
+const NB_GAMES_PER_ROOT_ACTION = 10
 
 type Grid = [8][8]Cell
 
@@ -36,6 +39,11 @@ var directions = [4]Coord{
 	{0, 1},
 	{-1, 0},
 	{0, -1},
+}
+
+type MonteCarloResult struct {
+	games int
+	wins  int
 }
 
 func charToCell(c byte) Cell {
@@ -95,14 +103,17 @@ func main() {
 		fmt.Scan(&actionsCount)
 
 		validActions := getValidActions(grid, myPlayer)
-		debug("validActions", validActions)
+		//debug("validActions", validActions)
 
 		if len(validActions) != actionsCount {
 			panic("invalid number of actions: " + strconv.Itoa(len(validActions)) + " != " + strconv.Itoa(actionsCount))
 		}
 
-		// fmt.Fprintln(os.Stderr, "Debug messages...")
-		fmt.Println("random") // e.g. e2e3 (move piece at e2 to e3)
+		debug("Starting Monte Carlo")
+		bestAction := runMonteCarloSearch(grid, myPlayer)
+		debug("bestAction", bestAction)
+
+		fmt.Println(bestAction.From.x, bestAction.From.y, bestAction.To.x, bestAction.To.y)
 	}
 
 }
@@ -156,4 +167,69 @@ func isValidMove(grid Grid, from Coord, to Coord) bool {
 	return grid[from.x][from.y] != Empty &&
 		grid[to.x][to.y] != Empty &&
 		grid[to.x][to.y] != grid[from.x][from.y]
+}
+
+func getOpponent(p Player) Player {
+	switch p {
+	case WhitePlayer:
+		return BlackPlayer
+	case BlackPlayer:
+		return WhitePlayer
+	}
+	panic("invalid player value " + string(p))
+}
+
+func runMonteCarloSearch(grid Grid, player Player) Action {
+	rootActions := getValidActions(grid, player)
+	//debug("rootActions", rootActions)
+
+	rootResults := make(map[Action]MonteCarloResult)
+
+	// run 1000 full games per root action, and store the winning rate
+	// the loser is the player that is unable to play
+	for iAction, rootAction := range rootActions {
+		debug("Sampling root action", rootAction, "(", iAction, "/", len(rootActions), ")")
+		var wins int
+		var games int
+		for i := 0; i < NB_GAMES_PER_ROOT_ACTION; i++ {
+			currentGrid := grid
+			currentPlayer := player
+
+			for {
+				validActions := getValidActions(currentGrid, currentPlayer)
+				if len(validActions) == 0 {
+					break
+				}
+
+				action := validActions[rand.Intn(len(validActions))]
+				currentGrid = applyAction(currentGrid, action)
+				currentPlayer = getOpponent(currentPlayer)
+			}
+
+			if currentPlayer != player {
+				wins++
+			}
+			games++
+		}
+		rootResults[rootAction] = MonteCarloResult{
+			wins:  wins,
+			games: games,
+		}
+
+		debug("rootAction", rootAction, "wins", wins, "games", games)
+	}
+
+	// find the action with the highest win rate
+	var bestAction Action
+	var bestRate float64
+	for _, rootAction := range rootActions {
+		rate := float64(rootResults[rootAction].wins) / float64(rootResults[rootAction].games)
+		if rate > bestRate {
+			bestRate = rate
+			bestAction = rootAction
+
+			debug("bestAction", bestAction, "bestRate", bestRate)
+		}
+	}
+	return bestAction
 }
