@@ -5,6 +5,7 @@ import (
 	"math/rand"
 	"os"
 	"strconv"
+	"time"
 )
 
 const NB_GAMES_PER_ROOT_ACTION_TOTAL = 2000
@@ -82,7 +83,7 @@ func parsePlayer(c byte) Player {
 
 func main() {
 	// random seed to current datetime
-	//rand.Seed(time.Now().UnixNano())
+	rand.Seed(time.Now().UnixNano())
 
 	if IS_CG {
 
