@@ -231,14 +231,14 @@ func runMonteCarloSearch(grid Grid, player Player) Action {
 					panic("depth too high")
 				}
 
-				remainingCount := getRemainingPieces(currentGrid, currentPlayer)
+				//remainingCount := getRemainingPieces(currentGrid, currentPlayer)
 
 				validActions := getValidActions(currentGrid, currentPlayer)
 				if len(validActions) == 0 {
 					break
 				}
 
-				debug("depth", depth, "validActions", len(validActions), "remainingCount", remainingCount)
+				//debug("depth", depth, "validActions", len(validActions), "remainingCount", remainingCount)
 
 				action := validActions[rand.Intn(len(validActions))]
 
