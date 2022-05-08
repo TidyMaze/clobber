@@ -7,7 +7,8 @@ import (
 	"strconv"
 )
 
-const NB_GAMES_PER_ROOT_ACTION = 5
+const NB_GAMES_PER_ROOT_ACTION = 10
+const IS_CG = false
 
 type Grid = [8][8]Cell
 
@@ -41,6 +42,17 @@ var directions = [4]Coord{
 	{0, -1},
 }
 
+var startGrid = Grid{
+	{White, Black, White, Black, White, Black, White, Black},
+	{Black, White, Black, White, Black, White, Black, White},
+	{White, Black, White, Black, White, Black, White, Black},
+	{Black, White, Black, White, Black, White, Black, White},
+	{White, Black, White, Black, White, Black, White, Black},
+	{Black, White, Black, White, Black, White, Black, White},
+	{White, Black, White, Black, White, Black, White, Black},
+	{Black, White, Black, White, Black, White, Black, White},
+}
+
 type MonteCarloResult struct {
 	games int
 	wins  int
@@ -69,53 +81,58 @@ func parsePlayer(c byte) Player {
 }
 
 func main() {
-	// boardSize: height and width of the board
-	var boardSize int
-	fmt.Scan(&boardSize)
+	if IS_CG {
 
-	// color: current color of your pieces ("w" or "b")
-	var color string
-	fmt.Scan(&color)
+		// boardSize: height and width of the board
+		var boardSize int
+		fmt.Scan(&boardSize)
 
-	myPlayer := parsePlayer(color[0])
+		// color: current color of your pieces ("w" or "b")
+		var color string
+		fmt.Scan(&color)
 
-	for {
-		grid := Grid{}
+		myPlayer := parsePlayer(color[0])
 
-		for i := 0; i < boardSize; i++ {
-			// line: horizontal row
-			var line string
-			fmt.Scan(&line)
+		for {
+			grid := Grid{}
 
-			for j := 0; j < boardSize; j++ {
-				grid[i][j] = charToCell(line[j])
+			for i := 0; i < boardSize; i++ {
+				// line: horizontal row
+				var line string
+				fmt.Scan(&line)
+
+				for j := 0; j < boardSize; j++ {
+					grid[i][j] = charToCell(line[j])
+				}
 			}
+
+			debug("grid", grid)
+
+			// lastAction: last action made by the opponent ("null" if it's the first turn)
+			var lastAction string
+			fmt.Scan(&lastAction)
+
+			// actionsCount: number of legal actions
+			var actionsCount int
+			fmt.Scan(&actionsCount)
+
+			validActions := getValidActions(grid, myPlayer)
+			//debug("validActions", validActions)
+
+			if len(validActions) != actionsCount {
+				panic("invalid number of actions: " + strconv.Itoa(len(validActions)) + " != " + strconv.Itoa(actionsCount))
+			}
+
+			debug("Starting Monte Carlo")
+			bestAction := runMonteCarloSearch(grid, myPlayer)
+			debug("bestAction", bestAction)
+
+			fmt.Println(bestAction.From.x, bestAction.From.y, bestAction.To.x, bestAction.To.y)
 		}
-
-		debug("grid", grid)
-
-		// lastAction: last action made by the opponent ("null" if it's the first turn)
-		var lastAction string
-		fmt.Scan(&lastAction)
-
-		// actionsCount: number of legal actions
-		var actionsCount int
-		fmt.Scan(&actionsCount)
-
-		validActions := getValidActions(grid, myPlayer)
-		//debug("validActions", validActions)
-
-		if len(validActions) != actionsCount {
-			panic("invalid number of actions: " + strconv.Itoa(len(validActions)) + " != " + strconv.Itoa(actionsCount))
-		}
-
-		debug("Starting Monte Carlo")
-		bestAction := runMonteCarloSearch(grid, myPlayer)
-		debug("bestAction", bestAction)
-
-		fmt.Println(bestAction.From.x, bestAction.From.y, bestAction.To.x, bestAction.To.y)
+	} else {
+		best := runMonteCarloSearch(startGrid, WhitePlayer)
+		debug("best", best)
 	}
-
 }
 
 func debug(v ...interface{}) {
