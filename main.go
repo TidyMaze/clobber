@@ -183,7 +183,7 @@ func applyAction(grid Grid, action Action) Grid {
 
 func isValidMove(grid Grid, from Coord, to Coord) bool {
 	return grid[from.y][from.x] != Empty &&
-		grid[to.y][to.x] == Empty &&
+		grid[to.y][to.x] != Empty &&
 		grid[to.y][to.x] != grid[from.y][from.x]
 }
 
@@ -227,9 +227,9 @@ func runMonteCarloSearch(grid Grid, player Player) Action {
 
 			depth := 0
 			for depth = 0; ; depth++ {
-				//if depth > 8*8 {
-				//	panic("depth too high")
-				//}
+				if depth > 8*8 {
+					panic("depth too high")
+				}
 
 				remainingCount := getRemainingPieces(currentGrid, currentPlayer)
 
@@ -243,8 +243,8 @@ func runMonteCarloSearch(grid Grid, player Player) Action {
 				action := validActions[rand.Intn(len(validActions))]
 
 				afterGrid := applyAction(currentGrid, action)
-				debug("before", currentGrid)
-				debug("after", afterGrid)
+				//debug("before", currentGrid)
+				//debug("after", afterGrid)
 
 				currentGrid = afterGrid
 
