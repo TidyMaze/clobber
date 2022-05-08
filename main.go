@@ -81,7 +81,8 @@ func parsePlayer(c byte) Player {
 }
 
 func main() {
-	rand.Seed(42)
+	// random seed to current datetime
+	//rand.Seed(time.Now().UnixNano())
 
 	if IS_CG {
 
@@ -217,11 +218,13 @@ func runMonteCarloSearch(grid Grid, player Player) Action {
 	rootResults := make(map[Action]MonteCarloResult)
 
 	for iAction, rootAction := range rootActions {
-		var wins int
-		var games int
+		afterRootActionGrid := applyAction(grid, rootAction)
+
+		var wins = 0
+		var games = 0
 		for i := 0; i < nbGamesPerRootAction; i++ {
-			currentGrid := grid
-			currentPlayer := player
+			currentGrid := afterRootActionGrid
+			currentPlayer := getOpponent(player)
 			depth := 0
 			for depth = 0; ; depth++ {
 				if depth > 8*8 {
