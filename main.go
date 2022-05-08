@@ -8,7 +8,7 @@ import (
 )
 
 const NB_GAMES_PER_ROOT_ACTION = 100
-const IS_CG = false
+const IS_CG = true
 
 type Grid = [8][8]Cell
 
@@ -127,7 +127,7 @@ func main() {
 			bestAction := runMonteCarloSearch(grid, myPlayer)
 			debug("bestAction", bestAction)
 
-			fmt.Println(bestAction.From.x, bestAction.From.y, bestAction.To.x, bestAction.To.y)
+			fmt.Println(displayCoord(bestAction.From) + displayCoord(bestAction.To))
 		}
 	} else {
 		best := runMonteCarloSearch(startGrid, WhitePlayer)
@@ -217,7 +217,7 @@ func runMonteCarloSearch(grid Grid, player Player) Action {
 
 	// run 1000 full games per root action, and store the winning rate
 	// the loser is the player that is unable to play
-	for iAction, rootAction := range rootActions {
+	for _, rootAction := range rootActions {
 		var wins int
 		var games int
 		for i := 0; i < NB_GAMES_PER_ROOT_ACTION; i++ {
@@ -264,7 +264,7 @@ func runMonteCarloSearch(grid Grid, player Player) Action {
 			games: games,
 		}
 
-		debug("Sampling root action", rootAction, "(", iAction, "/", len(rootActions), ") wins", wins, "games /", games)
+		//debug("Sampling root action", rootAction, "(", iAction, "/", len(rootActions), ") wins", wins, "games /", games)
 	}
 
 	// find the action with the highest win rate
@@ -280,4 +280,12 @@ func runMonteCarloSearch(grid Grid, player Player) Action {
 		}
 	}
 	return bestAction
+}
+
+func displayCoord(c Coord) string {
+	// x maps to board columns from a to h
+	// y maps to board rows from 1 to 8 but reversed top to bottom
+	column := string('a' + c.x)
+	row := strconv.Itoa(8 - int(c.y))
+	return column + row
 }
