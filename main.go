@@ -142,12 +142,12 @@ func getValidActions(grid Grid, player Player) []Action {
 		for j := 0; j < 8; j++ {
 			if grid[i][j] == getCellOfPlayer(player) {
 				for _, d := range directions {
-					destCoord := Coord{int8(i) + d.x, int8(j) + d.y}
+					destCoord := Coord{int8(j) + d.x, int8(i) + d.y}
 
-					if isInMap(destCoord) && isValidMove(grid, Coord{int8(i), int8(j)}, destCoord) {
+					if isInMap(destCoord) && isValidMove(grid, Coord{int8(j), int8(i)}, destCoord) {
 						actions = append(actions, Action{
-							From: Coord{int8(i), int8(j)},
-							To:   Coord{int8(i) + d.x, int8(j) + d.y},
+							From: Coord{int8(j), int8(i)},
+							To:   destCoord,
 						})
 					}
 				}
