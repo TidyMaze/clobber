@@ -159,11 +159,12 @@ func getValidActions(grid Grid, player Player) []Action {
 		for j := 0; j < 8; j++ {
 			if grid[i][j] == getCellOfPlayer(player) {
 				for _, d := range directions {
+					fromCoord := Coord{int8(j), int8(i)}
 					destCoord := Coord{int8(j) + d.x, int8(i) + d.y}
 
-					if isInMap(destCoord) && isValidMove(grid, Coord{int8(j), int8(i)}, destCoord) {
+					if isInMap(destCoord) && isValidMove(grid, fromCoord, destCoord) {
 						actions = append(actions, Action{
-							From: Coord{int8(j), int8(i)},
+							From: fromCoord,
 							To:   destCoord,
 						})
 					}
@@ -196,6 +197,18 @@ func getOpponent(p Player) Player {
 	panic("invalid player value " + string(p))
 }
 
+func getRemainingPieces(grid Grid, p Player) int {
+	var count int
+	for i := 0; i < 8; i++ {
+		for j := 0; j < 8; j++ {
+			if grid[i][j] == getCellOfPlayer(p) {
+				count++
+			}
+		}
+	}
+	return count
+}
+
 func runMonteCarloSearch(grid Grid, player Player) Action {
 	rootActions := getValidActions(grid, player)
 	//debug("rootActions", rootActions)
@@ -214,13 +227,27 @@ func runMonteCarloSearch(grid Grid, player Player) Action {
 
 			depth := 0
 			for depth = 0; ; depth++ {
+				//if depth > 8*8 {
+				//	panic("depth too high")
+				//}
+
+				remainingCount := getRemainingPieces(currentGrid, currentPlayer)
+
 				validActions := getValidActions(currentGrid, currentPlayer)
 				if len(validActions) == 0 {
 					break
 				}
 
+				debug("depth", depth, "validActions", len(validActions), "remainingCount", remainingCount)
+
 				action := validActions[rand.Intn(len(validActions))]
-				currentGrid = applyAction(currentGrid, action)
+
+				afterGrid := applyAction(currentGrid, action)
+				debug("before", currentGrid)
+				debug("after", afterGrid)
+
+				currentGrid = afterGrid
+
 				currentPlayer = getOpponent(currentPlayer)
 			}
 
