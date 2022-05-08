@@ -108,7 +108,7 @@ func main() {
 				}
 			}
 
-			debug("grid", grid)
+			//debug("grid", grid)
 
 			// lastAction: last action made by the opponent ("null" if it's the first turn)
 			var lastAction string
@@ -125,7 +125,7 @@ func main() {
 				panic("invalid number of actions: " + strconv.Itoa(len(validActions)) + " != " + strconv.Itoa(actionsCount))
 			}
 
-			debug("Starting Monte Carlo")
+			//debug("Starting Monte Carlo")
 			bestAction := runMonteCarloSearch(grid, myPlayer)
 			debug("bestAction", bestAction)
 
