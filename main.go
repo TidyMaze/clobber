@@ -8,7 +8,6 @@ import (
 	"time"
 )
 
-const NB_GAMES_PER_ROOT_ACTION_TOTAL = 2000
 const IS_CG = false
 const MAX_TIME_MS_CG = 150
 const MAX_TIME_MS_LOCAL = 10 * 1000
