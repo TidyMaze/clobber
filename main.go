@@ -182,6 +182,9 @@ func getValidActions(state State) []Action {
 					destCoord := Coord{int8(j) + d.x, int8(i) + d.y}
 
 					if isInMap(destCoord) && isValidMove(state.grid, fromCoord, destCoord) {
+						if len(actions) == 128 {
+							panic("too many actions")
+						}
 						actions = append(actions, Action{
 							From: fromCoord,
 							To:   destCoord,
