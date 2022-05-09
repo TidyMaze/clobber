@@ -8,7 +8,6 @@ import (
 	"time"
 )
 
-const IS_CG = false
 const MAX_TIME_MS_CG = 150
 const MAX_TIME_MS_LOCAL = 10 * 1000
 
@@ -147,7 +146,7 @@ func main() {
 		}
 
 		//debug("Starting Monte Carlo")
-		bestAction := runMonteCarloSearch(state, startTime)
+		bestAction := runMonteCarloSearch(state, startTime, MAX_TIME_MS_CG)
 		debug("bestAction", bestAction)
 
 		fmt.Println(displayCoord(bestAction.From) + displayCoord(bestAction.To))
@@ -228,15 +227,10 @@ func getOpponent(p Player) Player {
 	panic("invalid player value " + string(p))
 }
 
-func runMonteCarloSearch(state State, startTime int64) Action {
+func runMonteCarloSearch(state State, startTime int64, maxTimeMs int64) Action {
 	rootActions := state.validActions
 	rootResults := make(map[Action]MonteCarloResult)
 	actionRobin := 0
-
-	maxTimeMs := MAX_TIME_MS_CG
-	if !IS_CG {
-		maxTimeMs = MAX_TIME_MS_LOCAL
-	}
 
 	for (time.Now().UnixMilli() - startTime) < int64(maxTimeMs) {
 		rootAction := rootActions[actionRobin%len(rootActions)]
