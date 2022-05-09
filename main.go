@@ -25,10 +25,7 @@ type State struct {
 func (s State) Clone() State {
 	gridCopy := s.grid
 
-	validActionsCopy := make([]Action, len(s.validActions))
-	copy(validActionsCopy, s.validActions)
-
-	return State{gridCopy, s.turn, s.winner, s.player, validActionsCopy}
+	return State{gridCopy, s.turn, s.winner, s.player, s.validActions}
 }
 
 type Cell uint8
@@ -177,7 +174,7 @@ func isInMap(coord Coord) bool {
 }
 
 func getValidActions(state State) []Action {
-	var actions []Action
+	actions := make([]Action, 0, 128)
 	for i := 0; i < 8; i++ {
 		for j := 0; j < 8; j++ {
 			if state.grid[i][j] == getCellOfPlayer(state.player) {
