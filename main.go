@@ -9,7 +9,7 @@ import (
 )
 
 const NB_GAMES_PER_ROOT_ACTION_TOTAL = 2000
-const IS_CG = false
+const IS_CG = true
 
 type Grid = [8][8]Cell
 
@@ -274,17 +274,7 @@ func runMonteCarloSearch(state State, startTime int64) Action {
 	for (time.Now().UnixMilli() - startTime) < 150 {
 		rootAction := rootActions[actionRobin%len(rootActions)]
 		currentState := applyAction(state, rootAction)
-
-		for depth := 0; ; depth++ {
-			if depth > 8*8 {
-				panic("depth too high")
-			}
-			if currentState.winner != 0 {
-				break
-			}
-			currentState = applyAction(currentState, randomAction(currentState))
-		}
-
+		currentState = playUntilEnd(currentState)
 		isWinning := currentState.winner == int(state.player)
 
 		winScore := 0
@@ -320,6 +310,19 @@ func runMonteCarloSearch(state State, startTime int64) Action {
 		}
 	}
 	return bestAction
+}
+
+func playUntilEnd(currentState State) State {
+	for depth := 0; ; depth++ {
+		if depth > 8*8 {
+			panic("depth too high")
+		}
+		if currentState.winner != 0 {
+			break
+		}
+		currentState = applyAction(currentState, randomAction(currentState))
+	}
+	return currentState
 }
 
 func randomAction(currentState State) Action {
