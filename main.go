@@ -257,18 +257,6 @@ func getOpponent(p Player) Player {
 	panic("invalid player value " + string(p))
 }
 
-func getRemainingPieces(grid Grid, p Player) int {
-	var count int
-	for i := 0; i < 8; i++ {
-		for j := 0; j < 8; j++ {
-			if grid[i][j] == getCellOfPlayer(p) {
-				count++
-			}
-		}
-	}
-	return count
-}
-
 func runMonteCarloSearch(state State, startTime int64) Action {
 	rootActions := state.validActions
 	rootResults := make(map[Action]MonteCarloResult)
