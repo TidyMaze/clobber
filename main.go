@@ -9,7 +9,9 @@ import (
 )
 
 const NB_GAMES_PER_ROOT_ACTION_TOTAL = 2000
-const IS_CG = true
+const IS_CG = false
+const MAX_TIME_MS_CG = 150
+const MAX_TIME_MS_LOCAL = 10 * 1000
 
 type Grid = [8][8]Cell
 
@@ -176,7 +178,8 @@ func main() {
 			player: WhitePlayer,
 		}
 
-		best := runMonteCarloSearch(state, 0)
+		state.validActions = getValidActions(state)
+		best := runMonteCarloSearch(state, time.Now().UnixMilli())
 		debug("best", best)
 	}
 }
@@ -267,11 +270,16 @@ func getRemainingPieces(grid Grid, p Player) int {
 }
 
 func runMonteCarloSearch(state State, startTime int64) Action {
-	rootActions := getValidActions(state)
+	rootActions := state.validActions
 	rootResults := make(map[Action]MonteCarloResult)
 	actionRobin := 0
 
-	for (time.Now().UnixMilli() - startTime) < 150 {
+	maxTimeMs := MAX_TIME_MS_CG
+	if !IS_CG {
+		maxTimeMs = MAX_TIME_MS_LOCAL
+	}
+
+	for (time.Now().UnixMilli() - startTime) < int64(maxTimeMs) {
 		rootAction := rootActions[actionRobin%len(rootActions)]
 		currentState := applyAction(state, rootAction)
 		currentState = playUntilEnd(currentState)
