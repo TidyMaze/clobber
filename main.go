@@ -9,6 +9,8 @@ import (
 	"time"
 )
 
+const DEBUG = true
+
 const MAX_TIME_MS_CG = 150
 const MAX_TIME_MS_LOCAL = 10 * 1000
 
@@ -87,7 +89,10 @@ func showNode(node *MCTSNode) string {
 }
 
 func selectionMCTS(node *MCTSNode) *MCTSNode {
-	debug(fmt.Sprintf("selectionMCTS from %s", showNode(node)))
+	if DEBUG {
+		debug(fmt.Sprintf("selectionMCTS from %s", showNode(node)))
+	}
+
 	if len(node.children) == 0 {
 		return node
 	}
@@ -104,7 +109,9 @@ func selectionMCTS(node *MCTSNode) *MCTSNode {
 		}
 	}
 
-	debug(fmt.Sprintf("selectionMCTS child %s value %f", showNode(bestChild), bestValue))
+	if DEBUG {
+		debug(fmt.Sprintf("selectionMCTS child %s value %f", showNode(bestChild), bestValue))
+	}
 
 	return selectionMCTS(bestChild)
 }
@@ -117,7 +124,9 @@ func expandMCTS(node *MCTSNode) {
 		childState := applyAction(node.state, &action)
 		child := &MCTSNode{childState, &action, 0, 0, node, []*MCTSNode{}}
 
-		debug(fmt.Sprintf("expandMCTS child %s", showNode(child)))
+		if DEBUG {
+			debug(fmt.Sprintf("expandMCTS child %s", showNode(child)))
+		}
 
 		children = append(children, child)
 	}
@@ -127,6 +136,10 @@ func expandMCTS(node *MCTSNode) {
 
 func simulateMCTS(node *MCTSNode, myPlayer Player) Player {
 	// pick a random child node and simulate a game
+	if len(node.children) == 0 {
+		return Player(node.state.winner)
+	}
+
 	child := node.children[rand.Intn(len(node.children))]
 	return playUntilEnd(child.state)
 }
@@ -144,8 +157,11 @@ func backPropagateMCTS(node *MCTSNode, winner Player) {
 
 func searchMCTS(node *MCTSNode, myPlayer Player, iterations int) *MCTSNode {
 	for i := 0; i < iterations; i++ {
-		debug("iteration: " + strconv.Itoa(i))
+		if DEBUG {
+			debug("iteration: " + strconv.Itoa(i))
+		}
 		selectedNode := selectionMCTS(node)
+
 		expandMCTS(selectedNode)
 		winner := simulateMCTS(selectedNode, myPlayer)
 		backPropagateMCTS(selectedNode, winner)
