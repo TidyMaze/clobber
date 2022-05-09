@@ -7,14 +7,14 @@ import (
 
 func Test(t *testing.T) {
 	var startGrid = Grid{
-		{White, Black, White, Black, White, Black, White, Black},
-		{Black, White, Black, White, Black, White, Black, White},
-		{White, Black, White, Black, White, Black, White, Black},
-		{Black, White, Black, White, Black, White, Black, White},
-		{White, Black, White, Black, White, Black, White, Black},
-		{Black, White, Black, White, Black, White, Black, White},
-		{White, Black, White, Black, White, Black, White, Black},
-		{Black, White, Black, White, Black, White, Black, White},
+		White, Black, White, Black, White, Black, White, Black,
+		Black, White, Black, White, Black, White, Black, White,
+		White, Black, White, Black, White, Black, White, Black,
+		Black, White, Black, White, Black, White, Black, White,
+		White, Black, White, Black, White, Black, White, Black,
+		Black, White, Black, White, Black, White, Black, White,
+		White, Black, White, Black, White, Black, White, Black,
+		Black, White, Black, White, Black, White, Black, White,
 	}
 
 	state := State{

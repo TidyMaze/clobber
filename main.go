@@ -11,7 +11,7 @@ import (
 const MAX_TIME_MS_CG = 150
 const MAX_TIME_MS_LOCAL = 10 * 1000
 
-type Grid = [8][8]Cell
+type Grid = [64]Cell
 
 type State struct {
 	grid         Grid
@@ -113,7 +113,7 @@ func main() {
 			startTime = time.Now().UnixMilli()
 
 			for j := 0; j < boardSize; j++ {
-				grid[i][j] = charToCell(line[j])
+				grid[i*8+j] = charToCell(line[j])
 			}
 		}
 
@@ -173,7 +173,7 @@ func getValidActions(state State) []Action {
 	actions := make([]Action, 0, 128)
 	for i := 0; i < 8; i++ {
 		for j := 0; j < 8; j++ {
-			if state.grid[i][j] == currentPlayerCell {
+			if state.grid[i*8+j] == currentPlayerCell {
 				for _, d := range directions {
 					dX := int8(j) + d.x
 					dY := int8(i) + d.y
@@ -204,8 +204,8 @@ func inMap(dX int8, dY int8) bool {
 
 func applyAction(state State, action Action) State {
 	newState := state.Clone()
-	newState.grid[action.To.y][action.To.x] = newState.grid[action.From.y][action.From.x]
-	newState.grid[action.From.y][action.From.x] = Empty
+	newState.grid[action.To.y*8+action.To.x] = newState.grid[action.From.y*8+action.From.x]
+	newState.grid[action.From.y*8+action.From.x] = Empty
 	newState.turn = state.turn + 1
 	newState.player = getOpponent(state.player)
 
@@ -220,8 +220,8 @@ func applyAction(state State, action Action) State {
 }
 
 func isValidMove(grid *Grid, fX int8, fY int8, tX int8, tY int8) bool {
-	fromCell := grid[fY][fX]
-	toCell := grid[tY][tX]
+	fromCell := grid[fY*8+fX]
+	toCell := grid[tY*8+tX]
 	return fromCell != Empty && toCell != Empty && toCell != fromCell
 }
 
