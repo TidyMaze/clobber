@@ -262,8 +262,9 @@ func main() {
 
 		//debug("Starting Monte Carlo")
 		rootNode := MCTSNode{state, nil, 0, 0, nil, []*MCTSNode{}}
-		bestAction := searchMCTS(&rootNode, myPlayer, 10).action
-		debug("bestAction", bestAction)
+		bestNode := searchMCTS(&rootNode, myPlayer, 1000)
+		bestAction := bestNode.action
+		debug("bestAction", bestAction, "uct", uctMCTS(bestNode))
 
 		fmt.Println(displayCoord(bestAction.From) + displayCoord(bestAction.To))
 		turn++
