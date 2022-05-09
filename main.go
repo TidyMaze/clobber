@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"math"
 	"math/rand"
 	"os"
 	"strconv"
@@ -59,6 +60,94 @@ var directions = [4]Coord{
 type MonteCarloResult struct {
 	games int
 	wins  int
+}
+
+type MCTSNode struct {
+	state    State
+	visits   int
+	wins     int
+	parent   *MCTSNode
+	children []*MCTSNode
+}
+
+func uctMCTS(node *MCTSNode) float64 {
+	if node.parent == nil {
+		return 0
+	} else {
+		return float64(node.wins)/float64(node.visits) + 1.41*math.Sqrt(math.Log(float64(node.parent.visits))/float64(node.visits))
+	}
+}
+
+func selectionMCTS(node *MCTSNode) *MCTSNode {
+	// for each node, select the child with the highest uct value
+	var bestChild *MCTSNode
+	var bestValue float64
+
+	if len(node.children) == 0 {
+		return node
+	}
+
+	for _, child := range node.children {
+		value := uctMCTS(child)
+		if bestChild == nil || value > bestValue {
+			bestChild = child
+			bestValue = value
+		}
+	}
+
+	return selectionMCTS(bestChild)
+}
+
+func expandMCTS(node *MCTSNode) {
+	var children []*MCTSNode
+
+	actions := getValidActions(&node.state)
+	for _, action := range actions {
+		applyAction(node.state, &action)
+		child := &MCTSNode{node.state, 0, 0, node, []*MCTSNode{}}
+		children = append(children, child)
+	}
+
+	node.children = children
+}
+
+func simulateMCTS(node *MCTSNode, myPlayer Player) bool {
+	// pick a random child node and simulate a game
+	child := node.children[rand.Intn(len(node.children))]
+	winner := playUntilEnd(child.state)
+	return winner == myPlayer
+}
+
+func backPropagateMCTS(node *MCTSNode, won bool) {
+	if won {
+		node.visits++
+	}
+	node.wins++
+
+	if node.parent != nil {
+		backPropagateMCTS(node.parent, won)
+	}
+}
+
+func searchMCTS(node *MCTSNode, myPlayer Player, iterations int) *MCTSNode {
+	for i := 0; i < iterations; i++ {
+		selectedNode := selectionMCTS(node)
+		expandMCTS(selectedNode)
+		won := simulateMCTS(selectedNode, myPlayer)
+		backPropagateMCTS(selectedNode, won)
+	}
+
+	// return the best child node, with max visits
+	var bestChild *MCTSNode
+	var bestValue int
+	for _, child := range node.children {
+		if bestChild == nil || child.visits > bestValue {
+			bestChild = child
+			bestValue = child.visits
+		}
+	}
+
+	return bestChild
 }
 
 func charToCell(c byte) Cell {
