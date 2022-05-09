@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-func TestMain(m *testing.M) {
+func Test(t *testing.T) {
 	var startGrid = Grid{
 		{White, Black, White, Black, White, Black, White, Black},
 		{Black, White, Black, White, Black, White, Black, White},
