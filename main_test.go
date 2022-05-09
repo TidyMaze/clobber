@@ -2,7 +2,6 @@ package main
 
 import (
 	"testing"
-	"time"
 )
 
 func Test(t *testing.T) {
@@ -24,6 +23,8 @@ func Test(t *testing.T) {
 		player: WhitePlayer,
 	}
 
-	best := runMonteCarloSearch(state, time.Now().UnixMilli(), MAX_TIME_MS_LOCAL)
+	rootNode := MCTSNode{state, nil, 0, 0, nil, []*MCTSNode{}}
+	best := searchMCTS(&rootNode, state.player, 10).action
+
 	debug("best", displayCoord(best.From)+displayCoord(best.To))
 }

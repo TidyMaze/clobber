@@ -64,6 +64,7 @@ type MonteCarloResult struct {
 
 type MCTSNode struct {
 	state    State
+	action   *Action
 	visits   int
 	wins     int
 	parent   *MCTSNode
@@ -78,7 +79,15 @@ func uctMCTS(node *MCTSNode) float64 {
 	}
 }
 
+func showNode(node *MCTSNode) string {
+	grid := fmt.Sprintf("%v", node.state.grid)
+	uct := uctMCTS(node)
+	childrenCount := len(node.children)
+	return fmt.Sprintf("grid %s wins %d visits %d uct %f children size %d", grid, node.wins, node.visits, uct, childrenCount)
+}
+
 func selectionMCTS(node *MCTSNode) *MCTSNode {
+	debug(fmt.Sprintf("selectionMCTS from %s", showNode(node)))
 	if len(node.children) == 0 {
 		return node
 	}
@@ -88,11 +97,14 @@ func selectionMCTS(node *MCTSNode) *MCTSNode {
 
 	for _, child := range node.children {
 		value := uctMCTS(child)
+
 		if bestChild == nil || value > bestValue {
 			bestChild = child
 			bestValue = value
 		}
 	}
+
+	debug(fmt.Sprintf("selectionMCTS child %s value %f", showNode(bestChild), bestValue))
 
 	return selectionMCTS(bestChild)
 }
@@ -103,7 +115,10 @@ func expandMCTS(node *MCTSNode) {
 	actions := getValidActions(&node.state)
 	for _, action := range actions {
 		applyAction(node.state, &action)
-		child := &MCTSNode{node.state, 0, 0, node, []*MCTSNode{}}
+		child := &MCTSNode{node.state, &action, 0, 0, node, []*MCTSNode{}}
+
+		debug(fmt.Sprintf("expandMCTS child %s", showNode(child)))
+
 		children = append(children, child)
 	}
 
@@ -129,6 +144,7 @@ func backPropagateMCTS(node *MCTSNode, winner Player) {
 
 func searchMCTS(node *MCTSNode, myPlayer Player, iterations int) *MCTSNode {
 	for i := 0; i < iterations; i++ {
+		debug("iteration: " + strconv.Itoa(i))
 		selectedNode := selectionMCTS(node)
 		expandMCTS(selectedNode)
 		winner := simulateMCTS(selectedNode, myPlayer)
@@ -230,8 +246,11 @@ func main() {
 			panic("invalid number of actions: " + strconv.Itoa(len(validActions)) + " != " + strconv.Itoa(actionsCount))
 		}
 
+		_ = startTime
+
 		//debug("Starting Monte Carlo")
-		bestAction := runMonteCarloSearch(state, startTime, MAX_TIME_MS_CG)
+		rootNode := MCTSNode{state, nil, 0, 0, nil, []*MCTSNode{}}
+		bestAction := searchMCTS(&rootNode, myPlayer, 10).action
 		debug("bestAction", bestAction)
 
 		fmt.Println(displayCoord(bestAction.From) + displayCoord(bestAction.To))
