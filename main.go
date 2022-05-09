@@ -177,7 +177,7 @@ func getValidActions(state State) []Action {
 					dX := int8(j) + d.x
 					dY := int8(i) + d.y
 
-					if dX >= 0 && dX < 8 && dY >= 0 && dY < 8 && isValidMove(state.grid, int8(j), int8(i), dX, dY) {
+					if inMap(dX, dY) && isValidMove(state.grid, int8(j), int8(i), dX, dY) {
 						if len(actions) == 128 {
 							panic("too many actions")
 						}
@@ -195,6 +195,10 @@ func getValidActions(state State) []Action {
 		}
 	}
 	return actions
+}
+
+func inMap(dX int8, dY int8) bool {
+	return dX >= 0 && dX < 8 && dY >= 0 && dY < 8
 }
 
 func applyAction(state State, action Action) State {
