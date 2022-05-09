@@ -168,27 +168,29 @@ func getCellOfPlayer(p Player) Cell {
 	panic("invalid player value " + string(p))
 }
 
-func isInMap(coord Coord) bool {
-	return coord.x >= 0 && coord.x < 8 && coord.y >= 0 && coord.y < 8
-}
-
 func getValidActions(state State) []Action {
 	actions := make([]Action, 0, 128)
 	for i := 0; i < 8; i++ {
 		for j := 0; j < 8; j++ {
 			if state.grid[i][j] == getCellOfPlayer(state.player) {
 				for _, d := range directions {
-					fromCoord := Coord{int8(j), int8(i)}
-					destCoord := Coord{int8(j) + d.x, int8(i) + d.y}
+					dX := int8(j) + d.x
+					dY := int8(i) + d.y
 
-					if isInMap(destCoord) && isValidMove(state.grid, fromCoord, destCoord) {
-						if len(actions) == 128 {
-							panic("too many actions")
+					if dX >= 0 && dX < 8 && dY >= 0 && dY < 8 {
+						if isValidMove(state.grid, int8(j), int8(i), dX, dY) {
+							if len(actions) == 128 {
+								panic("too many actions")
+							}
+
+							fromCoord := Coord{int8(j), int8(i)}
+							destCoord := Coord{dX, dY}
+
+							actions = append(actions, Action{
+								From: fromCoord,
+								To:   destCoord,
+							})
 						}
-						actions = append(actions, Action{
-							From: fromCoord,
-							To:   destCoord,
-						})
 					}
 				}
 			}
@@ -214,9 +216,9 @@ func applyAction(state State, action Action) State {
 	return newState
 }
 
-func isValidMove(grid Grid, from Coord, to Coord) bool {
-	fromCell := grid[from.y][from.x]
-	toCell := grid[to.y][to.x]
+func isValidMove(grid Grid, fX int8, fY int8, tX int8, tY int8) bool {
+	fromCell := grid[fY][fX]
+	toCell := grid[tY][tX]
 	return fromCell != Empty && toCell != Empty && toCell != fromCell
 }
 
