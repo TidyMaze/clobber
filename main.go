@@ -79,13 +79,12 @@ func uctMCTS(node *MCTSNode) float64 {
 }
 
 func selectionMCTS(node *MCTSNode) *MCTSNode {
-	// for each node, select the child with the highest uct value
-	var bestChild *MCTSNode
-	var bestValue float64
-
 	if len(node.children) == 0 {
 		return node
 	}
+
+	var bestChild *MCTSNode
+	var bestValue float64
 
 	for _, child := range node.children {
 		value := uctMCTS(child)
@@ -137,7 +136,6 @@ func searchMCTS(node *MCTSNode, myPlayer Player, iterations int) *MCTSNode {
 		backPropagateMCTS(selectedNode, won)
 	}
 
-	// return the best child node, with max visits
 	var bestChild *MCTSNode
 	var bestValue int
 	for _, child := range node.children {
