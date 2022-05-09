@@ -137,7 +137,7 @@ func main() {
 		var actionsCount int
 		fmt.Scan(&actionsCount)
 
-		validActions := getValidActions(state)
+		validActions := getValidActions(&state)
 		//debug("validActions", validActions)
 
 		if len(validActions) != actionsCount {
@@ -167,7 +167,7 @@ func getCellOfPlayer(p Player) Cell {
 	panic("invalid player value " + string(p))
 }
 
-func getValidActions(state State) []Action {
+func getValidActions(state *State) []Action {
 	currentPlayerCell := getCellOfPlayer(state.player)
 	actions := make([]Action, 0, 128)
 	for i := 0; i < 8; i++ {
@@ -198,14 +198,12 @@ func inMap(dX int8, dY int8) bool {
 	return dX >= 0 && dX < 8 && dY >= 0 && dY < 8
 }
 
-func applyAction(state State, action Action) State {
-	newState := state.Clone()
-	newState.grid[action.To.y*8+action.To.x] = newState.grid[action.From.y*8+action.From.x]
-	newState.grid[action.From.y*8+action.From.x] = Empty
-	newState.turn = state.turn + 1
-	newState.player = getOpponent(state.player)
-
-	return newState
+func applyAction(state State, action *Action) State {
+	state.grid[action.To.y*8+action.To.x] = state.grid[action.From.y*8+action.From.x]
+	state.grid[action.From.y*8+action.From.x] = Empty
+	state.turn = state.turn + 1
+	state.player = getOpponent(state.player)
+	return state
 }
 
 func isValidMove(grid *Grid, fX int8, fY int8, tX int8, tY int8) bool {
@@ -225,13 +223,13 @@ func getOpponent(p Player) Player {
 }
 
 func runMonteCarloSearch(state State, startTime int64, maxTimeMs int64) Action {
-	rootActions := getValidActions(state)
+	rootActions := getValidActions(&state)
 	rootResults := make(map[Action]MonteCarloResult)
 	actionRobin := 0
 
 	for (time.Now().UnixMilli() - startTime) < int64(maxTimeMs) {
 		rootAction := rootActions[actionRobin%len(rootActions)]
-		currentState := applyAction(state, rootAction)
+		currentState := applyAction(state, &rootAction)
 		winner := playUntilEnd(currentState)
 
 		winScore := 0
@@ -275,12 +273,13 @@ func playUntilEnd(currentState State) Player {
 			panic("depth too high")
 		}
 
-		validActions := getValidActions(currentState)
+		validActions := getValidActions(&currentState)
 		if len(validActions) == 0 {
 			return getOpponent(currentState.player)
 		}
 
-		currentState = applyAction(currentState, randomAction(validActions))
+		randAction := randomAction(validActions)
+		currentState = applyAction(currentState, &randAction)
 	}
 }
 
