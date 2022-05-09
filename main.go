@@ -61,17 +61,6 @@ var directions = [4]Coord{
 	{0, -1},
 }
 
-var startGrid = Grid{
-	{White, Black, White, Black, White, Black, White, Black},
-	{Black, White, Black, White, Black, White, Black, White},
-	{White, Black, White, Black, White, Black, White, Black},
-	{Black, White, Black, White, Black, White, Black, White},
-	{White, Black, White, Black, White, Black, White, Black},
-	{Black, White, Black, White, Black, White, Black, White},
-	{White, Black, White, Black, White, Black, White, Black},
-	{Black, White, Black, White, Black, White, Black, White},
-}
-
 type MonteCarloResult struct {
 	games int
 	wins  int
@@ -103,83 +92,69 @@ func main() {
 	// random seed to current datetime
 	rand.Seed(time.Now().UnixNano())
 
-	if IS_CG {
+	// boardSize: height and width of the board
+	var boardSize int
+	fmt.Scan(&boardSize)
 
-		// boardSize: height and width of the board
-		var boardSize int
-		fmt.Scan(&boardSize)
+	// color: current color of your pieces ("w" or "b")
+	var color string
+	fmt.Scan(&color)
 
-		// color: current color of your pieces ("w" or "b")
-		var color string
-		fmt.Scan(&color)
+	myPlayer := parsePlayer(color[0])
 
-		myPlayer := parsePlayer(color[0])
+	turn := 0
 
-		turn := 0
+	for {
+		turn++
 
-		for {
-			turn++
+		grid := Grid{}
 
-			grid := Grid{}
+		startTime := int64(0)
+		for i := 0; i < boardSize; i++ {
+			// line: horizontal row
+			var line string
+			fmt.Scan(&line)
+			startTime = time.Now().UnixMilli()
 
-			startTime := int64(0)
-			for i := 0; i < boardSize; i++ {
-				// line: horizontal row
-				var line string
-				fmt.Scan(&line)
-				startTime = time.Now().UnixMilli()
-
-				for j := 0; j < boardSize; j++ {
-					grid[i][j] = charToCell(line[j])
-				}
+			for j := 0; j < boardSize; j++ {
+				grid[i][j] = charToCell(line[j])
 			}
-
-			//debug("grid", grid)
-
-			// lastAction: last action made by the opponent ("null" if it's the first turn)
-			var lastAction string
-			fmt.Scan(&lastAction)
-
-			if lastAction == "null" {
-				turn = 1
-			}
-
-			state := State{
-				grid:   grid,
-				turn:   turn,
-				winner: 0,
-				player: myPlayer,
-			}
-
-			// actionsCount: number of legal actions
-			var actionsCount int
-			fmt.Scan(&actionsCount)
-
-			state.validActions = getValidActions(state)
-			//debug("validActions", validActions)
-
-			if len(state.validActions) != actionsCount {
-				panic("invalid number of actions: " + strconv.Itoa(len(state.validActions)) + " != " + strconv.Itoa(actionsCount))
-			}
-
-			//debug("Starting Monte Carlo")
-			bestAction := runMonteCarloSearch(state, startTime)
-			debug("bestAction", bestAction)
-
-			fmt.Println(displayCoord(bestAction.From) + displayCoord(bestAction.To))
-			turn++
 		}
-	} else {
+
+		//debug("grid", grid)
+
+		// lastAction: last action made by the opponent ("null" if it's the first turn)
+		var lastAction string
+		fmt.Scan(&lastAction)
+
+		if lastAction == "null" {
+			turn = 1
+		}
+
 		state := State{
-			grid:   startGrid,
-			turn:   1,
+			grid:   grid,
+			turn:   turn,
 			winner: 0,
-			player: WhitePlayer,
+			player: myPlayer,
 		}
+
+		// actionsCount: number of legal actions
+		var actionsCount int
+		fmt.Scan(&actionsCount)
 
 		state.validActions = getValidActions(state)
-		best := runMonteCarloSearch(state, time.Now().UnixMilli())
-		debug("best", best)
+		//debug("validActions", validActions)
+
+		if len(state.validActions) != actionsCount {
+			panic("invalid number of actions: " + strconv.Itoa(len(state.validActions)) + " != " + strconv.Itoa(actionsCount))
+		}
+
+		//debug("Starting Monte Carlo")
+		bestAction := runMonteCarloSearch(state, startTime)
+		debug("bestAction", bestAction)
+
+		fmt.Println(displayCoord(bestAction.From) + displayCoord(bestAction.To))
+		turn++
 	}
 }
 
@@ -327,7 +302,7 @@ func randomAction(currentState State) Action {
 func displayCoord(c Coord) string {
 	// x maps to board columns from a to h
 	// y maps to board rows from 1 to 8 but reversed top to bottom
-	column := string('a' + c.x)
+	column := string(byte('a' + c.x))
 	row := strconv.Itoa(8 - int(c.y))
 	return column + row
 }
