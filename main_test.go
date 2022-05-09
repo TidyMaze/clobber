@@ -24,7 +24,7 @@ func Test(t *testing.T) {
 	}
 
 	rootNode := MCTSNode{state, nil, 0, 0, nil, []*MCTSNode{}}
-	best := searchMCTS(&rootNode, state.player, 100).action
+	best := searchMCTS(&rootNode, state.player, 1000).action
 
 	debug("best", displayCoord(best.From)+displayCoord(best.To))
 }
