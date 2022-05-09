@@ -13,6 +13,23 @@ const IS_CG = true
 
 type Grid = [8][8]Cell
 
+type State struct {
+	grid         Grid
+	turn         int
+	winner       int
+	player       Player
+	validActions []Action
+}
+
+func (s State) Clone() State {
+	gridCopy := s.grid
+
+	validActionsCopy := make([]Action, len(s.validActions))
+	copy(validActionsCopy, s.validActions)
+
+	return State{gridCopy, s.turn, s.winner, s.player, validActionsCopy}
+}
+
 type Cell uint8
 
 const (
@@ -24,7 +41,7 @@ const (
 type Player uint8
 
 const (
-	WhitePlayer Player = iota
+	WhitePlayer Player = iota + 1
 	BlackPlayer
 )
 
@@ -97,7 +114,11 @@ func main() {
 
 		myPlayer := parsePlayer(color[0])
 
+		turn := 0
+
 		for {
+			turn++
+
 			grid := Grid{}
 
 			startTime := int64(0)
@@ -118,25 +139,44 @@ func main() {
 			var lastAction string
 			fmt.Scan(&lastAction)
 
+			if lastAction == "null" {
+				turn = 1
+			}
+
+			state := State{
+				grid:   grid,
+				turn:   turn,
+				winner: 0,
+				player: myPlayer,
+			}
+
 			// actionsCount: number of legal actions
 			var actionsCount int
 			fmt.Scan(&actionsCount)
 
-			validActions := getValidActions(grid, myPlayer)
+			state.validActions = getValidActions(state)
 			//debug("validActions", validActions)
 
-			if len(validActions) != actionsCount {
-				panic("invalid number of actions: " + strconv.Itoa(len(validActions)) + " != " + strconv.Itoa(actionsCount))
+			if len(state.validActions) != actionsCount {
+				panic("invalid number of actions: " + strconv.Itoa(len(state.validActions)) + " != " + strconv.Itoa(actionsCount))
 			}
 
 			//debug("Starting Monte Carlo")
-			bestAction := runMonteCarloSearch(grid, myPlayer, startTime)
+			bestAction := runMonteCarloSearch(state, startTime)
 			debug("bestAction", bestAction)
 
 			fmt.Println(displayCoord(bestAction.From) + displayCoord(bestAction.To))
+			turn++
 		}
 	} else {
-		best := runMonteCarloSearch(startGrid, WhitePlayer, 0)
+		state := State{
+			grid:   startGrid,
+			turn:   1,
+			winner: 0,
+			player: WhitePlayer,
+		}
+
+		best := runMonteCarloSearch(state, 0)
 		debug("best", best)
 	}
 }
@@ -159,16 +199,16 @@ func isInMap(coord Coord) bool {
 	return coord.x >= 0 && coord.x < 8 && coord.y >= 0 && coord.y < 8
 }
 
-func getValidActions(grid Grid, player Player) []Action {
+func getValidActions(state State) []Action {
 	var actions []Action
 	for i := 0; i < 8; i++ {
 		for j := 0; j < 8; j++ {
-			if grid[i][j] == getCellOfPlayer(player) {
+			if state.grid[i][j] == getCellOfPlayer(state.player) {
 				for _, d := range directions {
 					fromCoord := Coord{int8(j), int8(i)}
 					destCoord := Coord{int8(j) + d.x, int8(i) + d.y}
 
-					if isInMap(destCoord) && isValidMove(grid, fromCoord, destCoord) {
+					if isInMap(destCoord) && isValidMove(state.grid, fromCoord, destCoord) {
 						actions = append(actions, Action{
 							From: fromCoord,
 							To:   destCoord,
@@ -181,10 +221,21 @@ func getValidActions(grid Grid, player Player) []Action {
 	return actions
 }
 
-func applyAction(grid Grid, action Action) Grid {
-	grid[action.To.y][action.To.x] = grid[action.From.y][action.From.x]
-	grid[action.From.y][action.From.x] = Empty
-	return grid
+func applyAction(state State, action Action) State {
+	newState := state.Clone()
+	newState.grid[action.To.y][action.To.x] = newState.grid[action.From.y][action.From.x]
+	newState.grid[action.From.y][action.From.x] = Empty
+	newState.turn = state.turn + 1
+	newState.player = getOpponent(state.player)
+
+	validActions := getValidActions(newState)
+	newState.validActions = validActions
+
+	if len(validActions) == 0 {
+		newState.winner = int(getOpponent(newState.player))
+	}
+
+	return newState
 }
 
 func isValidMove(grid Grid, from Coord, to Coord) bool {
@@ -215,8 +266,8 @@ func getRemainingPieces(grid Grid, p Player) int {
 	return count
 }
 
-func runMonteCarloSearch(grid Grid, player Player, startTime int64) Action {
-	rootActions := getValidActions(grid, player)
+func runMonteCarloSearch(state State, startTime int64) Action {
+	rootActions := getValidActions(state)
 	//nbGamesPerRootAction := NB_GAMES_PER_ROOT_ACTION_TOTAL / len(rootActions)
 	rootResults := make(map[Action]MonteCarloResult)
 
@@ -224,27 +275,22 @@ func runMonteCarloSearch(grid Grid, player Player, startTime int64) Action {
 
 	for (time.Now().UnixMilli() - startTime) < 150 {
 		rootAction := rootActions[actionRobin%len(rootActions)]
-		afterRootActionGrid := applyAction(grid, rootAction)
+		currentState := applyAction(state, rootAction)
 
-		currentGrid := afterRootActionGrid
-		currentPlayer := getOpponent(player)
 		depth := 0
 		for depth = 0; ; depth++ {
 			if depth > 8*8 {
 				panic("depth too high")
 			}
 
-			validActions := getValidActions(currentGrid, currentPlayer)
-			if len(validActions) == 0 {
+			if currentState.winner != 0 {
 				break
 			}
-			action := validActions[rand.Intn(len(validActions))]
-			afterGrid := applyAction(currentGrid, action)
-			currentGrid = afterGrid
-			currentPlayer = getOpponent(currentPlayer)
+
+			currentState = applyAction(currentState, randomAction(currentState))
 		}
 
-		isWinning := currentPlayer != player
+		isWinning := currentState.winner == int(state.player)
 
 		winScore := 0
 		if isWinning {
@@ -279,6 +325,10 @@ func runMonteCarloSearch(grid Grid, player Player, startTime int64) Action {
 		}
 	}
 	return bestAction
+}
+
+func randomAction(currentState State) Action {
+	return currentState.validActions[rand.Intn(len(currentState.validActions))]
 }
 
 func displayCoord(c Coord) string {
