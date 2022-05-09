@@ -157,11 +157,7 @@ func backPropagateMCTS(node *MCTSNode, winner Player) {
 
 func searchMCTS(node *MCTSNode, myPlayer Player, iterations int) *MCTSNode {
 	for i := 0; i < iterations; i++ {
-		if DEBUG {
-			debug("iteration: " + strconv.Itoa(i))
-		}
 		selectedNode := selectionMCTS(node)
-
 		expandMCTS(selectedNode)
 		winner := simulateMCTS(selectedNode, myPlayer)
 		backPropagateMCTS(selectedNode, winner)
