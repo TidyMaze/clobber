@@ -24,7 +24,6 @@ func Test(t *testing.T) {
 		player: WhitePlayer,
 	}
 
-	state.validActions = getValidActions(state)
 	best := runMonteCarloSearch(state, time.Now().UnixMilli(), MAX_TIME_MS_LOCAL)
 	debug("best", displayCoord(best.From)+displayCoord(best.To))
 }

@@ -14,17 +14,16 @@ const MAX_TIME_MS_LOCAL = 10 * 1000
 type Grid = [64]Cell
 
 type State struct {
-	grid         Grid
-	turn         int
-	winner       int
-	player       Player
-	validActions []Action
+	grid   Grid
+	turn   int
+	winner int
+	player Player
 }
 
 func (s State) Clone() State {
 	gridCopy := s.grid
 
-	return State{gridCopy, s.turn, s.winner, s.player, s.validActions}
+	return State{gridCopy, s.turn, s.winner, s.player}
 }
 
 type Cell uint8
@@ -138,11 +137,11 @@ func main() {
 		var actionsCount int
 		fmt.Scan(&actionsCount)
 
-		state.validActions = getValidActions(state)
+		validActions := getValidActions(state)
 		//debug("validActions", validActions)
 
-		if len(state.validActions) != actionsCount {
-			panic("invalid number of actions: " + strconv.Itoa(len(state.validActions)) + " != " + strconv.Itoa(actionsCount))
+		if len(validActions) != actionsCount {
+			panic("invalid number of actions: " + strconv.Itoa(len(validActions)) + " != " + strconv.Itoa(actionsCount))
 		}
 
 		//debug("Starting Monte Carlo")
@@ -209,13 +208,6 @@ func applyAction(state State, action Action) State {
 	newState.turn = state.turn + 1
 	newState.player = getOpponent(state.player)
 
-	validActions := getValidActions(newState)
-	newState.validActions = validActions
-
-	if len(validActions) == 0 {
-		newState.winner = int(getOpponent(newState.player))
-	}
-
 	return newState
 }
 
@@ -236,18 +228,17 @@ func getOpponent(p Player) Player {
 }
 
 func runMonteCarloSearch(state State, startTime int64, maxTimeMs int64) Action {
-	rootActions := state.validActions
+	rootActions := getValidActions(state)
 	rootResults := make(map[Action]MonteCarloResult)
 	actionRobin := 0
 
 	for (time.Now().UnixMilli() - startTime) < int64(maxTimeMs) {
 		rootAction := rootActions[actionRobin%len(rootActions)]
 		currentState := applyAction(state, rootAction)
-		currentState = playUntilEnd(currentState)
-		isWinning := currentState.winner == int(state.player)
+		winner := playUntilEnd(currentState)
 
 		winScore := 0
-		if isWinning {
+		if winner == state.player {
 			winScore = 1
 		}
 
@@ -281,21 +272,23 @@ func runMonteCarloSearch(state State, startTime int64, maxTimeMs int64) Action {
 	return bestAction
 }
 
-func playUntilEnd(currentState State) State {
+func playUntilEnd(currentState State) Player {
 	for depth := 0; ; depth++ {
 		if depth > 8*8 {
 			panic("depth too high")
 		}
-		if currentState.winner != 0 {
-			break
+
+		validActions := getValidActions(currentState)
+		if len(validActions) == 0 {
+			return getOpponent(currentState.player)
 		}
-		currentState = applyAction(currentState, randomAction(currentState))
+
+		currentState = applyAction(currentState, randomAction(validActions))
 	}
-	return currentState
 }
 
-func randomAction(currentState State) Action {
-	return currentState.validActions[rand.Intn(len(currentState.validActions))]
+func randomAction(validActions []Action) Action {
+	return validActions[rand.Intn(len(validActions))]
 }
 
 func displayCoord(c Coord) string {
