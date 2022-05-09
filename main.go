@@ -177,20 +177,18 @@ func getValidActions(state State) []Action {
 					dX := int8(j) + d.x
 					dY := int8(i) + d.y
 
-					if dX >= 0 && dX < 8 && dY >= 0 && dY < 8 {
-						if isValidMove(state.grid, int8(j), int8(i), dX, dY) {
-							if len(actions) == 128 {
-								panic("too many actions")
-							}
-
-							fromCoord := Coord{int8(j), int8(i)}
-							destCoord := Coord{dX, dY}
-
-							actions = append(actions, Action{
-								From: fromCoord,
-								To:   destCoord,
-							})
+					if dX >= 0 && dX < 8 && dY >= 0 && dY < 8 && isValidMove(state.grid, int8(j), int8(i), dX, dY) {
+						if len(actions) == 128 {
+							panic("too many actions")
 						}
+
+						fromCoord := Coord{int8(j), int8(i)}
+						destCoord := Coord{dX, dY}
+
+						actions = append(actions, Action{
+							From: fromCoord,
+							To:   destCoord,
+						})
 					}
 				}
 			}
