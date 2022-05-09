@@ -169,7 +169,7 @@ func getCellOfPlayer(p Player) Cell {
 
 func getValidActions(state *State) []Action {
 	currentPlayerCell := getCellOfPlayer(state.player)
-	actions := make([]Action, 0, 128)
+	actions := make([]Action, 0, 64)
 	for i := 0; i < 8; i++ {
 		for j := 0; j < 8; j++ {
 			if state.grid[i*8+j] == currentPlayerCell {
