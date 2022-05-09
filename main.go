@@ -282,11 +282,9 @@ func runMonteCarloSearch(state State, startTime int64) Action {
 			if depth > 8*8 {
 				panic("depth too high")
 			}
-
 			if currentState.winner != 0 {
 				break
 			}
-
 			currentState = applyAction(currentState, randomAction(currentState))
 		}
 
