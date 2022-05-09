@@ -114,8 +114,8 @@ func expandMCTS(node *MCTSNode) {
 
 	actions := getValidActions(&node.state)
 	for _, action := range actions {
-		applyAction(node.state, &action)
-		child := &MCTSNode{node.state, &action, 0, 0, node, []*MCTSNode{}}
+		childState := applyAction(node.state, &action)
+		child := &MCTSNode{childState, &action, 0, 0, node, []*MCTSNode{}}
 
 		debug(fmt.Sprintf("expandMCTS child %s", showNode(child)))
 
