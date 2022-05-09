@@ -215,9 +215,9 @@ func applyAction(state State, action Action) State {
 }
 
 func isValidMove(grid Grid, from Coord, to Coord) bool {
-	return grid[from.y][from.x] != Empty &&
-		grid[to.y][to.x] != Empty &&
-		grid[to.y][to.x] != grid[from.y][from.x]
+	fromCell := grid[from.y][from.x]
+	toCell := grid[to.y][to.x]
+	return fromCell != Empty && toCell != Empty && toCell != fromCell
 }
 
 func getOpponent(p Player) Player {
