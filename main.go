@@ -19,14 +19,13 @@ type Grid = [64]Cell
 type State struct {
 	grid   Grid
 	turn   int
-	winner int
 	player Player
 }
 
 func (s State) Clone() State {
 	gridCopy := s.grid
 
-	return State{gridCopy, s.turn, s.winner, s.player}
+	return State{gridCopy, s.turn, s.player}
 }
 
 type Cell uint8
@@ -137,7 +136,7 @@ func expandMCTS(node *MCTSNode) {
 func simulateMCTS(node *MCTSNode, myPlayer Player) Player {
 	// pick a random child node and simulate a game
 	if len(node.children) == 0 {
-		return Player(node.state.winner)
+		return Player(node.state.player)
 	}
 
 	child := node.children[rand.Intn(len(node.children))]
@@ -243,7 +242,6 @@ func main() {
 		state := State{
 			grid:   grid,
 			turn:   turn,
-			winner: 0,
 			player: myPlayer,
 		}
 

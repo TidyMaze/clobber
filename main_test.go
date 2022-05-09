@@ -19,7 +19,6 @@ func Test(t *testing.T) {
 	state := State{
 		grid:   startGrid,
 		turn:   1,
-		winner: 0,
 		player: WhitePlayer,
 	}
 
