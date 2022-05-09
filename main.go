@@ -9,7 +9,7 @@ import (
 )
 
 const NB_GAMES_PER_ROOT_ACTION_TOTAL = 2000
-const IS_CG = true
+const IS_CG = false
 
 type Grid = [8][8]Cell
 
@@ -268,9 +268,7 @@ func getRemainingPieces(grid Grid, p Player) int {
 
 func runMonteCarloSearch(state State, startTime int64) Action {
 	rootActions := getValidActions(state)
-	//nbGamesPerRootAction := NB_GAMES_PER_ROOT_ACTION_TOTAL / len(rootActions)
 	rootResults := make(map[Action]MonteCarloResult)
-
 	actionRobin := 0
 
 	for (time.Now().UnixMilli() - startTime) < 150 {
