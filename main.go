@@ -182,12 +182,9 @@ func getValidActions(state State) []Action {
 							panic("too many actions")
 						}
 
-						fromCoord := Coord{int8(j), int8(i)}
-						destCoord := Coord{dX, dY}
-
 						actions = append(actions, Action{
-							From: fromCoord,
-							To:   destCoord,
+							From: Coord{int8(j), int8(i)},
+							To:   Coord{dX, dY},
 						})
 					}
 				}
