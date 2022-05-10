@@ -297,6 +297,8 @@ func main() {
 
 		_ = startTime
 
+		node_count = 0
+
 		//debug("Starting Monte Carlo")
 		rootNode := MCTSNode{node_count, state, nil, 0, 0, nil, []*MCTSNode{}}
 		node_count++
