@@ -136,7 +136,7 @@ func expandMCTS(node *MCTSNode) {
 	actions := getValidActions(node.state)
 	for i := 0; i < len(actions); i++ {
 		childState := applyAction(*node.state, &actions[i])
-		child := makeChildNode(node, childState, &actions[i])
+		child := &MCTSNode{node_count, childState, &actions[i], 0, 0, node, []*MCTSNode{}}
 		node_count++
 
 		if DEBUG {
@@ -147,10 +147,6 @@ func expandMCTS(node *MCTSNode) {
 	}
 
 	node.children = children
-}
-
-func makeChildNode(node *MCTSNode, childState *State, action *Action) *MCTSNode {
-	return &MCTSNode{node_count, childState, action, 0, 0, node, []*MCTSNode{}}
 }
 
 func simulateMCTS(node *MCTSNode) (*MCTSNode, Player) {
