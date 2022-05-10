@@ -172,7 +172,9 @@ func backPropagateMCTS(node *MCTSNode, winner Player) {
 }
 
 func showTree(node *MCTSNode, padding int) {
-	debug(strings.Repeat(" ", padding) + showNode(node))
+	if node.visits > 0 {
+		debug(strings.Repeat(" ", padding) + showNode(node))
+	}
 	for _, child := range node.children {
 		showTree(child, padding+2)
 	}
