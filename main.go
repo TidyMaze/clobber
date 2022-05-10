@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-const DEBUG = true
+const DEBUG = false
 
 const MAX_TIME_MS_CG = 150
 const MAX_TIME_MS_LOCAL = 10 * 1000
@@ -150,7 +150,9 @@ func simulateMCTS(node *MCTSNode, myPlayer Player) (*MCTSNode, Player) {
 
 	child := node.children[rand.Intn(len(node.children))]
 
-	debug(fmt.Sprintf("simulateMCTS picked child %d", child.id))
+	if DEBUG {
+		debug(fmt.Sprintf("simulateMCTS picked child %d", child.id))
+	}
 
 	return child, playUntilEnd(child.state)
 }
@@ -181,17 +183,22 @@ func showTree(node *MCTSNode, padding int) {
 }
 
 func searchMCTS(node *MCTSNode, myPlayer Player, iterations int) *MCTSNode {
-	debug("initial node", showNode(node))
-	showTree(node, 0)
+	if DEBUG {
+		debug("initial node", showNode(node))
+		showTree(node, 0)
+	}
+
 	for i := 0; i < iterations; i++ {
 		selectedNode := selectionMCTS(node)
 		expandMCTS(selectedNode)
 		child, winner := simulateMCTS(selectedNode, myPlayer)
 		backPropagateMCTS(child, winner)
 
-		showTree(node, 0)
-		debug("==== end of iteration ====", i)
-		debug()
+		if DEBUG {
+			showTree(node, 0)
+			debug("==== end of iteration ====", i)
+			debug()
+		}
 	}
 
 	var bestChild *MCTSNode
