@@ -144,12 +144,14 @@ func expandMCTS(node *MCTSNode) {
 }
 
 func simulateMCTS(node *MCTSNode, myPlayer Player) Player {
-	// pick a random child node and simulate a game
 	if len(node.children) == 0 {
 		return Player(node.state.player)
 	}
 
 	child := node.children[rand.Intn(len(node.children))]
+
+	debug(fmt.Sprintf("simulateMCTS picked child %d", child.id))
+
 	return playUntilEnd(child.state)
 }
 
