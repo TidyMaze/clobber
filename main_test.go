@@ -1,10 +1,15 @@
 package main
 
 import (
+	"math/rand"
 	"testing"
+	"time"
 )
 
 func Test(t *testing.T) {
+	// random seed to current datetime
+	rand.Seed(time.Now().UnixNano())
+
 	var startGrid = Grid{
 		White, Black, White, Black, White, Black, White, Black,
 		Black, White, Black, White, Black, White, Black, White,

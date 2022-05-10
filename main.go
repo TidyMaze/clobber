@@ -94,7 +94,12 @@ func showNode(node *MCTSNode) string {
 		parentNodeId = strconv.Itoa(node.parent.id)
 	}
 
-	return fmt.Sprintf("node %d wins %d visits %d uct %f parent %s", node.id, node.wins, node.visits, uct, parentNodeId)
+	action := "nil"
+	if node.action != nil {
+		action = fmt.Sprintf("%v", *node.action)
+	}
+
+	return fmt.Sprintf("node %d wins %d visits %d uct %f parent %s action %s", node.id, node.wins, node.visits, uct, parentNodeId, action)
 }
 
 func selectionMCTS(node *MCTSNode) *MCTSNode {
