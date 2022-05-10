@@ -152,7 +152,7 @@ func expandMCTS(node *MCTSNode) {
 
 func simulateMCTS(node *MCTSNode) (*MCTSNode, Player) {
 	if len(node.children) == 0 {
-		return node, Player(node.state.player)
+		return node, getOpponent(Player(node.state.player))
 	}
 
 	child := node.children[rand.Intn(len(node.children))]
