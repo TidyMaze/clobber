@@ -189,7 +189,7 @@ func searchMCTS(node *MCTSNode, myPlayer Player, iterations int) *MCTSNode {
 		child, winner := simulateMCTS(selectedNode, myPlayer)
 		backPropagateMCTS(child, winner)
 
-		debug("iteration", i)
+		debug("==== end of iteration ====", i)
 		showTree(node, 0)
 	}
 
