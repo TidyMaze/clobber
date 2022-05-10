@@ -162,7 +162,7 @@ func backPropagateMCTS(node *MCTSNode, winner Player) {
 	}
 	node.visits++
 
-	debug(fmt.Sprintf("backPropagateMCTS\t%s with result%b\t ", showNode(node), winner))
+	debug(fmt.Sprintf("backPropagateMCTS\t%s with winner %d\t ", showNode(node), winner))
 
 	if node.parent != nil {
 		backPropagateMCTS(node.parent, winner)
