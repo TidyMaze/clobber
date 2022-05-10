@@ -189,8 +189,9 @@ func searchMCTS(node *MCTSNode, myPlayer Player, iterations int) *MCTSNode {
 		child, winner := simulateMCTS(selectedNode, myPlayer)
 		backPropagateMCTS(child, winner)
 
-		debug("==== end of iteration ====", i)
 		showTree(node, 0)
+		debug("==== end of iteration ====", i)
+		debug()
 	}
 
 	var bestChild *MCTSNode
