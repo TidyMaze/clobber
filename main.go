@@ -156,11 +156,13 @@ func simulateMCTS(node *MCTSNode, myPlayer Player) (*MCTSNode, Player) {
 }
 
 func backPropagateMCTS(node *MCTSNode, winner Player) {
-	debug(fmt.Sprintf("backPropagateMCTS\t%s with result%b\t ", showNode(node), winner))
+
 	if winner == node.state.player {
 		node.wins++
 	}
 	node.visits++
+
+	debug(fmt.Sprintf("backPropagateMCTS\t%s with result%b\t ", showNode(node), winner))
 
 	if node.parent != nil {
 		backPropagateMCTS(node.parent, winner)
