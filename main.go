@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-const DEBUG = false
+const DEBUG = true
 
 const MAX_TIME_MS_CG = 150
 const MAX_TIME_MS_LOCAL = 10 * 1000
@@ -134,10 +134,9 @@ func expandMCTS(node *MCTSNode) {
 	children := make([]*MCTSNode, 0, (8*8/2)*4)
 
 	actions := getValidActions(node.state)
-	for _, action := range actions {
-		childState := applyAction(*node.state, &action)
-		copyAction := action
-		child := &MCTSNode{node_count, childState, &copyAction, 0, 0, node, []*MCTSNode{}}
+	for i := 0; i < len(actions); i++ {
+		childState := applyAction(*node.state, &actions[i])
+		child := makeChildNode(node, childState, actions[i])
 		node_count++
 
 		if DEBUG {
@@ -148,6 +147,10 @@ func expandMCTS(node *MCTSNode) {
 	}
 
 	node.children = children
+}
+
+func makeChildNode(node *MCTSNode, childState *State, copyAction Action) *MCTSNode {
+	return &MCTSNode{node_count, childState, &copyAction, 0, 0, node, []*MCTSNode{}}
 }
 
 func simulateMCTS(node *MCTSNode) (*MCTSNode, Player) {
