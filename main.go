@@ -14,6 +14,7 @@ const DEBUG = false
 
 const MAX_TIME_MS_CG = 150
 const MAX_TIME_MS_LOCAL = 10 * 1000
+const ITERATIONS = 10000
 
 var node_count = 0
 
@@ -302,7 +303,7 @@ func main() {
 		//debug("Starting Monte Carlo")
 		rootNode := MCTSNode{node_count, state, nil, 0, 0, nil, []*MCTSNode{}}
 		node_count++
-		bestNode := searchMCTS(&rootNode, myPlayer, 1000)
+		bestNode := searchMCTS(&rootNode, myPlayer, ITERATIONS)
 		bestAction := bestNode.action
 		debug("bestAction", bestAction, showNode(bestNode))
 
