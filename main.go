@@ -165,7 +165,7 @@ func simulateMCTS(node *MCTSNode) (*MCTSNode, Player) {
 
 func backPropagateMCTS(node *MCTSNode, winner Player) {
 
-	if winner == node.state.player {
+	if winner == getOpponent(node.state.player) {
 		node.wins++
 	}
 	node.visits++
