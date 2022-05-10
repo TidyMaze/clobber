@@ -144,7 +144,7 @@ func expandMCTS(node *MCTSNode) {
 	node.children = children
 }
 
-func simulateMCTS(node *MCTSNode, myPlayer Player) (*MCTSNode, Player) {
+func simulateMCTS(node *MCTSNode) (*MCTSNode, Player) {
 	if len(node.children) == 0 {
 		return node, Player(node.state.player)
 	}
@@ -192,7 +192,7 @@ func searchMCTS(node *MCTSNode, myPlayer Player, iterations int) *MCTSNode {
 	for i := 0; i < iterations; i++ {
 		selectedNode := selectionMCTS(node)
 		expandMCTS(selectedNode)
-		child, winner := simulateMCTS(selectedNode, myPlayer)
+		child, winner := simulateMCTS(selectedNode)
 		backPropagateMCTS(child, winner)
 
 		if DEBUG {
