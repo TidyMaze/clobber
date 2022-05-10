@@ -117,9 +117,9 @@ func selectionMCTS(node *MCTSNode) *MCTSNode {
 		}
 	}
 
-	if DEBUG {
-		debug(fmt.Sprintf("selectionMCTS child\t%s value\t%f", showNode(bestChild), bestValue))
-	}
+	//if DEBUG {
+	//	debug(fmt.Sprintf("selectionMCTS child\t%s value\t%f", showNode(bestChild), bestValue))
+	//}
 
 	return selectionMCTS(bestChild)
 }
