@@ -6,6 +6,7 @@ import (
 	"math/rand"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -13,6 +14,8 @@ const DEBUG = true
 
 const MAX_TIME_MS_CG = 150
 const MAX_TIME_MS_LOCAL = 10 * 1000
+
+var node_count = 0
 
 type Grid = [64]Cell
 
@@ -64,6 +67,7 @@ type MonteCarloResult struct {
 }
 
 type MCTSNode struct {
+	id       int
 	state    State
 	action   *Action
 	visits   int
@@ -81,10 +85,15 @@ func uctMCTS(node *MCTSNode) float64 {
 }
 
 func showNode(node *MCTSNode) string {
-	grid := fmt.Sprintf("%v", node.state.grid)
+	//grid := fmt.Sprintf("%v", node.state.grid)
 	uct := uctMCTS(node)
-	childrenCount := len(node.children)
-	return fmt.Sprintf("grid %s wins %d visits %d uct %f children size %d", grid, node.wins, node.visits, uct, childrenCount)
+
+	parentNodeId := "nil"
+	if node.parent != nil {
+		parentNodeId = strconv.Itoa(node.parent.id)
+	}
+
+	return fmt.Sprintf("node %d wins %d visits %d uct %f parent %s", node.id, node.wins, node.visits, uct, parentNodeId)
 }
 
 func selectionMCTS(node *MCTSNode) *MCTSNode {
@@ -121,7 +130,8 @@ func expandMCTS(node *MCTSNode) {
 	actions := getValidActions(&node.state)
 	for _, action := range actions {
 		childState := applyAction(node.state, &action)
-		child := &MCTSNode{childState, &action, 0, 0, node, []*MCTSNode{}}
+		child := &MCTSNode{node_count, childState, &action, 0, 0, node, []*MCTSNode{}}
+		node_count++
 
 		if DEBUG {
 			//debug(fmt.Sprintf("expandMCTS child %s", showNode(child)))
@@ -155,12 +165,24 @@ func backPropagateMCTS(node *MCTSNode, winner Player) {
 	}
 }
 
+func showTree(node *MCTSNode, padding int) {
+	debug(strings.Repeat(" ", padding) + showNode(node))
+	for _, child := range node.children {
+		showTree(child, padding+2)
+	}
+}
+
 func searchMCTS(node *MCTSNode, myPlayer Player, iterations int) *MCTSNode {
+	debug("initial node", showNode(node))
+	showTree(node, 0)
 	for i := 0; i < iterations; i++ {
 		selectedNode := selectionMCTS(node)
 		expandMCTS(selectedNode)
 		winner := simulateMCTS(selectedNode, myPlayer)
 		backPropagateMCTS(selectedNode, winner)
+
+		debug("iteration", i, "node", showNode(selectedNode))
+		showTree(node, 0)
 	}
 
 	var bestChild *MCTSNode
@@ -260,7 +282,8 @@ func main() {
 		_ = startTime
 
 		//debug("Starting Monte Carlo")
-		rootNode := MCTSNode{state, nil, 0, 0, nil, []*MCTSNode{}}
+		rootNode := MCTSNode{node_count, state, nil, 0, 0, nil, []*MCTSNode{}}
+		node_count++
 		bestNode := searchMCTS(&rootNode, myPlayer, 1000)
 		bestAction := bestNode.action
 		debug("bestAction", bestAction, "uct", uctMCTS(bestNode))
