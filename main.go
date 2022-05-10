@@ -302,7 +302,7 @@ func main() {
 		node_count++
 		bestNode := searchMCTS(&rootNode, myPlayer, 1000)
 		bestAction := bestNode.action
-		debug("bestAction", bestAction, "uct", uctMCTS(bestNode))
+		debug("bestAction", bestAction, "uct", uctMCTS(bestNode), "wins", bestNode.wins, "visits", bestNode.visits)
 
 		fmt.Println(displayCoord(bestAction.From) + displayCoord(bestAction.To))
 		turn++
