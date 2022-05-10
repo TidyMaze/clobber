@@ -143,16 +143,16 @@ func expandMCTS(node *MCTSNode) {
 	node.children = children
 }
 
-func simulateMCTS(node *MCTSNode, myPlayer Player) Player {
+func simulateMCTS(node *MCTSNode, myPlayer Player) (*MCTSNode, Player) {
 	if len(node.children) == 0 {
-		return Player(node.state.player)
+		return node, Player(node.state.player)
 	}
 
 	child := node.children[rand.Intn(len(node.children))]
 
 	debug(fmt.Sprintf("simulateMCTS picked child %d", child.id))
 
-	return playUntilEnd(child.state)
+	return child, playUntilEnd(child.state)
 }
 
 func backPropagateMCTS(node *MCTSNode, winner Player) {
@@ -180,10 +180,10 @@ func searchMCTS(node *MCTSNode, myPlayer Player, iterations int) *MCTSNode {
 	for i := 0; i < iterations; i++ {
 		selectedNode := selectionMCTS(node)
 		expandMCTS(selectedNode)
-		winner := simulateMCTS(selectedNode, myPlayer)
-		backPropagateMCTS(selectedNode, winner)
+		child, winner := simulateMCTS(selectedNode, myPlayer)
+		backPropagateMCTS(child, winner)
 
-		debug("iteration", i, "node", showNode(selectedNode))
+		debug("iteration", i)
 		showTree(node, 0)
 	}
 
