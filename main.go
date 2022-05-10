@@ -69,7 +69,7 @@ type MonteCarloResult struct {
 
 type MCTSNode struct {
 	id       int
-	state    State
+	state    *State
 	action   *Action
 	visits   int
 	wins     int
@@ -131,13 +131,13 @@ func selectionMCTS(node *MCTSNode) *MCTSNode {
 }
 
 func expandMCTS(node *MCTSNode) {
-	var children []*MCTSNode
+	children := make([]*MCTSNode, 0, (8*8/2)*4)
 
-	actions := getValidActions(&node.state)
+	actions := getValidActions(node.state)
 	for _, action := range actions {
-		childState := applyAction(node.state, &action)
+		childState := applyAction(*node.state, &action)
 		copyAction := action
-		child := &MCTSNode{node_count, childState, &copyAction, 0, 0, node, []*MCTSNode{}}
+		child := &MCTSNode{node_count, &childState, &copyAction, 0, 0, node, []*MCTSNode{}}
 		node_count++
 
 		if DEBUG {
@@ -162,7 +162,7 @@ func simulateMCTS(node *MCTSNode) (*MCTSNode, Player) {
 		showTree(node, 0)
 	}
 
-	return child, playUntilEnd(child.state)
+	return child, playUntilEnd(*child.state)
 }
 
 func backPropagateMCTS(node *MCTSNode, winner Player) {
@@ -308,7 +308,7 @@ func main() {
 		node_count = 0
 
 		//debug("Starting Monte Carlo")
-		rootNode := MCTSNode{node_count, state, nil, 0, 0, nil, []*MCTSNode{}}
+		rootNode := MCTSNode{node_count, &state, nil, 0, 0, nil, []*MCTSNode{}}
 		node_count++
 		bestNode := searchMCTS(&rootNode, myPlayer, ITERATIONS)
 		bestAction := bestNode.action
