@@ -10,11 +10,11 @@ import (
 	"time"
 )
 
-const DEBUG = false
+const DEBUG = true
 
 const MAX_TIME_MS_CG = 150
 const MAX_TIME_MS_LOCAL = 10 * 1000
-const ITERATIONS = 1000
+const ITERATIONS = 5
 
 var node_count = 0
 
