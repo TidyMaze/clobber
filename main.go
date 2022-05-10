@@ -89,7 +89,7 @@ func showNode(node *MCTSNode) string {
 
 func selectionMCTS(node *MCTSNode) *MCTSNode {
 	if DEBUG {
-		debug(fmt.Sprintf("selectionMCTS from %s", showNode(node)))
+		debug(fmt.Sprintf("selectionMCTS from\t%s", showNode(node)))
 	}
 
 	if len(node.children) == 0 {
@@ -109,7 +109,7 @@ func selectionMCTS(node *MCTSNode) *MCTSNode {
 	}
 
 	if DEBUG {
-		debug(fmt.Sprintf("selectionMCTS child %s value %f", showNode(bestChild), bestValue))
+		debug(fmt.Sprintf("selectionMCTS child\t%s value\t%f", showNode(bestChild), bestValue))
 	}
 
 	return selectionMCTS(bestChild)
@@ -144,6 +144,7 @@ func simulateMCTS(node *MCTSNode, myPlayer Player) Player {
 }
 
 func backPropagateMCTS(node *MCTSNode, winner Player) {
+	debug(fmt.Sprintf("backPropagateMCTS\t%s with result%b\t ", showNode(node), winner))
 	if winner == node.state.player {
 		node.wins++
 	}
