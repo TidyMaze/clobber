@@ -140,7 +140,7 @@ func expandMCTS(node *MCTSNode) {
 		node_count++
 
 		if DEBUG {
-			//debug(fmt.Sprintf("expandMCTS child %s", showNode(child)))
+			debug(fmt.Sprintf("expandMCTS child %s", showNode(child)))
 		}
 
 		children = append(children, child)
@@ -157,7 +157,8 @@ func simulateMCTS(node *MCTSNode) (*MCTSNode, Player) {
 	child := node.children[rand.Intn(len(node.children))]
 
 	if DEBUG {
-		debug(fmt.Sprintf("simulateMCTS picked child %d", child.id))
+		debug(fmt.Sprintf("simulateMCTS picked child %s", showNode(child)))
+		showTree(node, 0)
 	}
 
 	return child, playUntilEnd(child.state)
