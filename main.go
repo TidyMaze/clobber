@@ -14,7 +14,7 @@ const DEBUG = false
 
 const MAX_TIME_MS_CG = 150
 const MAX_TIME_MS_LOCAL = 10 * 1000
-const ITERATIONS = 10000
+const ITERATIONS = 2000
 
 var node_count = 0
 
