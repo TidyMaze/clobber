@@ -12,7 +12,7 @@ import (
 
 const DEBUG = false
 
-const MAX_TIME_MS_CG = 150
+const MAX_TIME_MS_CG = 150 * 0.9
 const MAX_TIME_MS_LOCAL = 10 * 1000
 const ITERATIONS = 1000
 
@@ -175,6 +175,8 @@ func backPropagateMCTS(node *MCTSNode, winner Player) {
 
 	if winner == getOpponent(node.state.player) {
 		node.wins++
+	} else {
+		node.wins--
 	}
 	node.visits++
 
