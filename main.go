@@ -317,7 +317,7 @@ func main() {
 		//debug("Starting Monte Carlo")
 		rootNode := MCTSNode{node_count, &state, nil, 0, 0, nil, []*MCTSNode{}}
 		node_count++
-		bestNode := searchMCTS(&rootNode, startTime, MAX_TIME_MS_LOCAL)
+		bestNode := searchMCTS(&rootNode, startTime, MAX_TIME_MS_CG)
 		bestAction := bestNode.action
 		debug("bestAction", *bestAction, showNode(bestNode), "after", playouts, "playouts")
 
@@ -342,7 +342,7 @@ func getCellOfPlayer(p Player) Cell {
 
 func getValidActions(state *State) []Action {
 	currentPlayerCell := getCellOfPlayer(state.player)
-	actions := make([]Action, 0, 64)
+	actions := make([]Action, 0, 16)
 	for i := 0; i < 8; i++ {
 		for j := 0; j < 8; j++ {
 			if state.grid[i*8+j] == currentPlayerCell {
