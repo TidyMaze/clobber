@@ -18,6 +18,8 @@ const ITERATIONS = 1000
 
 var node_count = 0
 
+var playouts = 0
+
 type Grid = [64]Cell
 
 type State struct {
@@ -154,6 +156,7 @@ func expandMCTS(node *MCTSNode) {
 }
 
 func simulateMCTS(node *MCTSNode) (*MCTSNode, Player) {
+	playouts++
 	if len(node.children) == 0 {
 		return node, getOpponent(Player(node.state.player))
 	}
@@ -309,13 +312,14 @@ func main() {
 		_ = startTime
 
 		node_count = 0
+		playouts = 0
 
 		//debug("Starting Monte Carlo")
 		rootNode := MCTSNode{node_count, &state, nil, 0, 0, nil, []*MCTSNode{}}
 		node_count++
 		bestNode := searchMCTS(&rootNode, myPlayer, ITERATIONS)
 		bestAction := bestNode.action
-		debug("bestAction", *bestAction, showNode(bestNode))
+		debug("bestAction", *bestAction, showNode(bestNode), "after", playouts, "playouts")
 
 		fmt.Println(displayCoord(bestAction.From) + displayCoord(bestAction.To))
 		turn++
