@@ -89,7 +89,6 @@ func showNode(node *MCTSNode) string {
 	//grid := fmt.Sprintf("%v", node.state.grid)
 
 	uct := float64(-1)
-
 	if node.parent != nil {
 		uct = uctMCTS(node)
 	}
