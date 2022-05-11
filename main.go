@@ -103,12 +103,12 @@ func showNode(node *MCTSNode) string {
 		action = fmt.Sprintf("%v", *node.action)
 	}
 
-	return fmt.Sprintf("node %d\twins %d\tvisits %d\tuct %f\tparent %s\taction %s", node.id, node.wins, node.visits, uct, parentNodeId, action)
+	return fmt.Sprintf("node %d wins %d visits %d uct %f parent %s action %s", node.id, node.wins, node.visits, uct, parentNodeId, action)
 }
 
 func selectionMCTS(node *MCTSNode) *MCTSNode {
 	if DEBUG {
-		debug(fmt.Sprintf("selectionMCTS from\t\t\t%s", showNode(node)))
+		debug(fmt.Sprintf("selectionMCTS from   %s", showNode(node)))
 	}
 
 	if len(node.children) == 0 {
@@ -128,7 +128,7 @@ func selectionMCTS(node *MCTSNode) *MCTSNode {
 	}
 
 	//if DEBUG {
-	//	debug(fmt.Sprintf("selectionMCTS child\t%s value\t%f", showNode(bestChild), bestValue))
+	//	debug(fmt.Sprintf("selectionMCTS child %s value %f", showNode(bestChild), bestValue))
 	//}
 
 	return selectionMCTS(bestChild)
@@ -161,7 +161,7 @@ func simulateMCTS(node *MCTSNode) (*MCTSNode, Player) {
 	child := node.children[rand.Intn(len(node.children))]
 
 	if DEBUG {
-		debug(fmt.Sprintf("simulateMCTS picked child\t%s", showNode(child)))
+		debug(fmt.Sprintf("simulateMCTS picked child %s", showNode(child)))
 		showTree(node, 0)
 	}
 
@@ -176,7 +176,7 @@ func backPropagateMCTS(node *MCTSNode, winner Player) {
 	node.visits++
 
 	if DEBUG {
-		debug(fmt.Sprintf("backPropagateMCTS\t\t\t%s with winner %d\t ", showNode(node), winner))
+		debug(fmt.Sprintf("backPropagateMCTS   %s with winner %d  ", showNode(node), winner))
 	}
 
 	if node.parent != nil {
