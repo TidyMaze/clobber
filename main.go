@@ -315,7 +315,7 @@ func main() {
 		node_count++
 		bestNode := searchMCTS(&rootNode, myPlayer, ITERATIONS)
 		bestAction := bestNode.action
-		debug("bestAction", bestAction, showNode(bestNode))
+		debug("bestAction", *bestAction, showNode(bestNode))
 
 		fmt.Println(displayCoord(bestAction.From) + displayCoord(bestAction.To))
 		turn++
