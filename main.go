@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-const DEBUG = false
+const DEBUG = true
 
 const MAX_TIME_MS_CG = 150
 const MAX_TIME_MS_LOCAL = 10 * 1000
@@ -104,7 +104,7 @@ func showNode(node *MCTSNode) string {
 
 func selectionMCTS(node *MCTSNode) *MCTSNode {
 	if DEBUG {
-		debug(fmt.Sprintf("selectionMCTS from\t%s", showNode(node)))
+		debug(fmt.Sprintf("selectionMCTS from\t\t\t%s", showNode(node)))
 	}
 
 	if len(node.children) == 0 {
@@ -157,7 +157,7 @@ func simulateMCTS(node *MCTSNode) (*MCTSNode, Player) {
 	child := node.children[rand.Intn(len(node.children))]
 
 	if DEBUG {
-		debug(fmt.Sprintf("simulateMCTS picked child %s", showNode(child)))
+		debug(fmt.Sprintf("simulateMCTS picked child\t%s", showNode(child)))
 		showTree(node, 0)
 	}
 
@@ -172,7 +172,7 @@ func backPropagateMCTS(node *MCTSNode, winner Player) {
 	node.visits++
 
 	if DEBUG {
-		debug(fmt.Sprintf("backPropagateMCTS\t%s with winner %d\t ", showNode(node), winner))
+		debug(fmt.Sprintf("backPropagateMCTS\t\t\t%s with winner %d\t ", showNode(node), winner))
 	}
 
 	if node.parent != nil {
