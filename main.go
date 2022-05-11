@@ -198,15 +198,13 @@ func showTree(node *MCTSNode, padding int) {
 	}
 }
 
-func searchMCTS(node *MCTSNode, myPlayer Player, iterations int, startTime int64) *MCTSNode {
-	maxTime := int64(MAX_TIME_MS_CG)
-
+func searchMCTS(node *MCTSNode, startTime int64, maxTimeMs int64) *MCTSNode {
 	if DEBUG {
 		debug("initial node", showNode(node))
 		showTree(node, 0)
 	}
 
-	for i := 0; (time.Now().UnixMilli() - startTime) < maxTime; i++ {
+	for i := 0; (time.Now().UnixMilli() - startTime) < maxTimeMs; i++ {
 		selectedNode := selectionMCTS(node)
 		expandMCTS(selectedNode)
 		child, winner := simulateMCTS(selectedNode)
@@ -319,7 +317,7 @@ func main() {
 		//debug("Starting Monte Carlo")
 		rootNode := MCTSNode{node_count, &state, nil, 0, 0, nil, []*MCTSNode{}}
 		node_count++
-		bestNode := searchMCTS(&rootNode, myPlayer, ITERATIONS, startTime)
+		bestNode := searchMCTS(&rootNode, startTime, MAX_TIME_MS_LOCAL)
 		bestAction := bestNode.action
 		debug("bestAction", *bestAction, showNode(bestNode), "after", playouts, "playouts")
 
