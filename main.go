@@ -99,7 +99,7 @@ func showNode(node *MCTSNode) string {
 		action = fmt.Sprintf("%v", *node.action)
 	}
 
-	return fmt.Sprintf("node %d wins %d visits %d uct %f parent %s action %s", node.id, node.wins, node.visits, uct, parentNodeId, action)
+	return fmt.Sprintf("node %d\twins %d\tvisits %d\tuct %f\tparent %s\taction %s", node.id, node.wins, node.visits, uct, parentNodeId, action)
 }
 
 func selectionMCTS(node *MCTSNode) *MCTSNode {
