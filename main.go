@@ -78,8 +78,8 @@ type MCTSNode struct {
 }
 
 func uctMCTS(node *MCTSNode) float64 {
-	if node.parent == nil {
-		return 0
+	if node.visits == 0 {
+		return math.Inf(1)
 	} else {
 		return float64(node.wins)/float64(node.visits) + 1.41*math.Sqrt(math.Log(float64(node.parent.visits))/float64(node.visits))
 	}
@@ -87,7 +87,12 @@ func uctMCTS(node *MCTSNode) float64 {
 
 func showNode(node *MCTSNode) string {
 	//grid := fmt.Sprintf("%v", node.state.grid)
-	uct := uctMCTS(node)
+
+	uct := float64(-1)
+
+	if node.parent != nil {
+		uct = uctMCTS(node)
+	}
 
 	parentNodeId := "nil"
 	if node.parent != nil {
