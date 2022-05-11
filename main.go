@@ -12,7 +12,7 @@ import (
 
 const DEBUG = false
 
-const MAX_TIME_MS_CG = 150 * 0.9
+const MAX_TIME_MS_CG = 145
 const MAX_TIME_MS_LOCAL = 10 * 1000
 const ITERATIONS = 1000
 
