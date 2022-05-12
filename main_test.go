@@ -27,7 +27,7 @@ func Test(t *testing.T) {
 		player: WhitePlayer,
 	}
 
-	rootNode := MCTSNode{node_count, &state, nil, 0, 0, nil, []*MCTSNode{}}
+	rootNode := MCTSNode{node_count, state, nil, 0, 0, nil, []*MCTSNode{}}
 	node_count++
 
 	startTime := time.Now().UnixMilli()
