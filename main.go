@@ -75,7 +75,7 @@ type MCTSNode struct {
 	visits   int
 	wins     int
 	parent   *MCTSNode
-	children []*MCTSNode
+	children []MCTSNode
 }
 
 func uctMCTS(node *MCTSNode) float64 {
@@ -119,11 +119,11 @@ func selectionMCTS(node *MCTSNode) *MCTSNode {
 	var bestChild *MCTSNode
 	var bestValue float64
 
-	for _, child := range node.children {
-		value := uctMCTS(child)
+	for i := 0; i < len(node.children); i++ {
+		value := uctMCTS(&node.children[i])
 
 		if bestChild == nil || value > bestValue {
-			bestChild = child
+			bestChild = &node.children[i]
 			bestValue = value
 		}
 	}
@@ -138,17 +138,16 @@ func selectionMCTS(node *MCTSNode) *MCTSNode {
 func expandMCTS(node *MCTSNode) {
 	actions := getValidActions(node.state)
 
-	children := make([]*MCTSNode, 0, len(actions))
+	children := make([]MCTSNode, 0, len(actions))
 	for i := 0; i < len(actions); i++ {
 		childState := applyAction(*node.state, &actions[i])
-		child := &MCTSNode{node_count, &childState, &actions[i], 0, 0, node, []*MCTSNode{}}
 		node_count++
 
 		if DEBUG {
 			//debug(fmt.Sprintf("expandMCTS child %s", showNode(child)))
 		}
 
-		children = append(children, child)
+		children = append(children, MCTSNode{node_count, &childState, &actions[i], 0, 0, node, []MCTSNode{}})
 	}
 
 	node.children = children
@@ -160,7 +159,7 @@ func simulateMCTS(node *MCTSNode) (*MCTSNode, Player) {
 		return node, getOpponent(Player(node.state.player))
 	}
 
-	child := node.children[rand.Intn(len(node.children))]
+	child := &node.children[rand.Intn(len(node.children))]
 
 	if DEBUG {
 		debug(fmt.Sprintf("simulateMCTS picked child %s", showNode(child)))
@@ -193,7 +192,7 @@ func showTree(node *MCTSNode, padding int) {
 		debug(strings.Repeat(" ", padding) + showNode(node))
 	}
 	for _, child := range node.children {
-		showTree(child, padding+2)
+		showTree(&child, padding+2)
 	}
 }
 
@@ -221,7 +220,7 @@ func searchMCTS(node *MCTSNode, startTime int64, maxTimeMs int64) *MCTSNode {
 	var bestValue int
 	for _, child := range node.children {
 		if bestChild == nil || child.visits > bestValue {
-			bestChild = child
+			bestChild = &child
 			bestValue = child.visits
 		}
 	}
@@ -314,7 +313,7 @@ func main() {
 		node_count = 0
 
 		//debug("Starting Monte Carlo")
-		rootNode := MCTSNode{node_count, &state, nil, 0, 0, nil, []*MCTSNode{}}
+		rootNode := MCTSNode{node_count, &state, nil, 0, 0, nil, []MCTSNode{}}
 		node_count++
 		bestNode := searchMCTS(&rootNode, startTime, MAX_TIME_MS_CG)
 		bestAction := bestNode.action
