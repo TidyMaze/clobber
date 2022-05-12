@@ -379,6 +379,13 @@ func applyAction(state State, action *Action) *State {
 	return &state
 }
 
+func applyActionMut(state *State, action *Action) {
+	state.grid[action.To.y*8+action.To.x] = state.grid[action.From.y*8+action.From.x]
+	state.grid[action.From.y*8+action.From.x] = Empty
+	state.turn = state.turn + 1
+	state.player = getOpponent(state.player)
+}
+
 func isValidMove(grid *Grid, fX int8, fY int8, tX int8, tY int8) bool {
 	fromCell := grid[fY*8+fX]
 	toCell := grid[tY*8+tX]
@@ -453,7 +460,7 @@ func playUntilEnd(s State) Player {
 		}
 
 		randAction := randomAction(validActions)
-		currentState = applyAction(*currentState, &randAction)
+		applyActionMut(currentState, &randAction)
 	}
 }
 
