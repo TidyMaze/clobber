@@ -199,6 +199,7 @@ func showTree(node *MCTSNode, padding int) {
 }
 
 func searchMCTS(node *MCTSNode, startTime int64, maxTimeMs int64) *MCTSNode {
+	playouts = 0
 	if DEBUG {
 		debug("initial node", showNode(node))
 		showTree(node, 0)
@@ -312,7 +313,6 @@ func main() {
 		}
 
 		node_count = 0
-		playouts = 0
 
 		//debug("Starting Monte Carlo")
 		rootNode := MCTSNode{node_count, &state, nil, 0, 0, nil, []*MCTSNode{}}

@@ -34,5 +34,5 @@ func Test(t *testing.T) {
 
 	bestNode := searchMCTS(&rootNode, startTime, MAX_TIME_MS_LOCAL)
 	best := bestNode.action
-	debug("best", displayCoord(best.From)+displayCoord(best.To), showNode(bestNode))
+	debug("best", displayCoord(best.From)+displayCoord(best.To), showNode(bestNode), "after", playouts, "playouts")
 }
