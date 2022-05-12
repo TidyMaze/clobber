@@ -12,7 +12,7 @@ import (
 
 const DEBUG = false
 
-const MAX_TIME_MS_CG = 145
+const MAX_TIME_MS_CG = 135
 const MAX_TIME_MS_LOCAL = 10 * 1000
 
 var node_count = 0
@@ -136,12 +136,12 @@ func selectionMCTS(node *MCTSNode) *MCTSNode {
 }
 
 func expandMCTS(node *MCTSNode) {
-	children := make([]*MCTSNode, 0, (8*8/2)*4)
-
 	actions := getValidActions(node.state)
+
+	children := make([]*MCTSNode, 0, len(actions))
 	for i := 0; i < len(actions); i++ {
 		childState := applyAction(*node.state, &actions[i])
-		child := &MCTSNode{node_count, childState, &actions[i], 0, 0, node, []*MCTSNode{}}
+		child := &MCTSNode{node_count, &childState, &actions[i], 0, 0, node, []*MCTSNode{}}
 		node_count++
 
 		if DEBUG {
@@ -370,12 +370,12 @@ func inMap(dX int8, dY int8) bool {
 	return dX >= 0 && dX < 8 && dY >= 0 && dY < 8
 }
 
-func applyAction(state State, action *Action) *State {
+func applyAction(state State, action *Action) State {
 	state.grid[action.To.y*8+action.To.x] = state.grid[action.From.y*8+action.From.x]
 	state.grid[action.From.y*8+action.From.x] = Empty
 	state.turn = state.turn + 1
 	state.player = getOpponent(state.player)
-	return &state
+	return state
 }
 
 func applyActionMut(state *State, action *Action) {
@@ -409,7 +409,7 @@ func runMonteCarloSearch(state State, startTime int64, maxTimeMs int64) Action {
 	for (time.Now().UnixMilli() - startTime) < int64(maxTimeMs) {
 		rootAction := rootActions[actionRobin%len(rootActions)]
 		currentState := applyAction(state, &rootAction)
-		winner := playUntilEnd(*currentState)
+		winner := playUntilEnd(currentState)
 
 		winScore := 0
 		if winner == state.player {
