@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-const DEBUG = false
+const DEBUG = true
 
 const MAX_TIME_MS_CG = 135
 const MAX_TIME_MS_LOCAL = 10 * 1000
