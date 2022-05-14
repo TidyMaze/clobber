@@ -397,6 +397,59 @@ func getOpponent(p Player) Player {
 	panic("invalid player value " + string(p))
 }
 
+func minimaxEval(state *State) float64 {
+	return 42.0
+}
+
+func runMinimaxSearch(state *State) Action {
+	rootActions := getValidActions(state)
+
+	var bestAction *Action = nil
+	bestValue := math.Inf(-1)
+
+	for _, action := range rootActions {
+		stateCopy := *state
+		applyActionMut(&stateCopy, &action)
+
+		value := minimax(&stateCopy, 5, stateCopy.player)
+		if value > bestValue {
+			bestValue = value
+			bestAction = &action
+		}
+	}
+
+	return *bestAction
+}
+
+func minimax(state *State, maxDepth int, maximizingPlayer Player) float64 {
+	if maxDepth == 0 {
+		return minimaxEval(state)
+	}
+
+	nextActions := getValidActions(state)
+
+	if len(nextActions) == 0 {
+		return minimaxEval(state)
+	}
+
+	value := 0.0
+	if maximizingPlayer == state.player {
+		value = math.Inf(-1)
+		for _, nextAction := range nextActions {
+			nextState := applyAction(*state, &nextAction)
+			value = math.Max(value, minimax(&nextState, maxDepth-1, getOpponent(maximizingPlayer)))
+		}
+	} else {
+		value = math.Inf(1)
+		for _, nextAction := range nextActions {
+			nextState := applyAction(*state, &nextAction)
+			value = math.Min(value, minimax(&nextState, maxDepth-1, getOpponent(maximizingPlayer)))
+		}
+	}
+
+	return value
+}
+
 func runMonteCarloSearch(state State, startTime int64, maxTimeMs int64) Action {
 	rootActions := getValidActions(&state)
 	rootResults := make(map[Action]MonteCarloResult)
