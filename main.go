@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-const DEBUG = false
+const DEBUG = true
 
 const MAX_TIME_MS_CG = 135
 const MAX_TIME_MS_LOCAL = 10 * 1000
@@ -444,7 +444,9 @@ func runMinimaxSearch(state *State) Action {
 func minimax(state *State, maxDepth int, myPlayer Player) float64 {
 	if maxDepth == 0 {
 		eval := minimaxEval(state, myPlayer)
-		//debug("Reaching max depth", maxDepth, "eval", eval)
+		if DEBUG {
+			debug("Reaching max depth", maxDepth, "eval", eval)
+		}
 		return eval
 	}
 
@@ -452,20 +454,27 @@ func minimax(state *State, maxDepth int, myPlayer Player) float64 {
 
 	if len(nextActions) == 0 {
 		eval := minimaxEval(state, myPlayer)
-		debug("Reaching leaf node", maxDepth, "eval", eval)
+
+		if DEBUG {
+			debug("Reaching leaf node", maxDepth, "eval", eval)
+		}
 		return eval
 	}
 
 	value := 0.0
 	if myPlayer == state.player {
-		//debug("Taking max", maxDepth)
+		if DEBUG {
+			debug("Taking max", maxDepth)
+		}
 		value = math.Inf(-1)
 		for _, nextAction := range nextActions {
 			nextState := applyAction(*state, &nextAction)
 			value = math.Max(value, minimax(&nextState, maxDepth-1, myPlayer))
 		}
 	} else {
-		//debug("Taking min", maxDepth)
+		if DEBUG {
+			debug("Taking min", maxDepth)
+		}
 		value = math.Inf(1)
 		for _, nextAction := range nextActions {
 			nextState := applyAction(*state, &nextAction)
