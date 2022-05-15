@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-const DEBUG = true
+const DEBUG = false
 
 const MAX_TIME_MS_CG = 135
 const MAX_TIME_MS_LOCAL = 10 * 1000
@@ -430,7 +430,7 @@ func runMinimaxSearch(state *State, maxDepth int) Action {
 		stateCopy := *state
 		applyActionMut(&stateCopy, &action)
 
-		value := minimax(&stateCopy, maxDepth-1, state.player)
+		value := minimax(&stateCopy, maxDepth-1, state.player, math.Inf(-1), math.Inf(1))
 		if value > bestValue {
 			bestValue = value
 			bestAction = action
@@ -443,7 +443,7 @@ func runMinimaxSearch(state *State, maxDepth int) Action {
 	return bestAction
 }
 
-func minimax(state *State, maxDepth int, myPlayer Player) float64 {
+func minimax(state *State, maxDepth int, myPlayer Player, alpha float64, beta float64) float64 {
 	nextActions := getValidActions(state)
 
 	if maxDepth == 0 {
@@ -462,40 +462,44 @@ func minimax(state *State, maxDepth int, myPlayer Player) float64 {
 		return eval
 	}
 
-	value := 0.0
 	if myPlayer == state.player {
 		if DEBUG {
 			debug("Taking max", maxDepth)
 		}
-		value = math.Inf(-1)
+		value := math.Inf(-1)
 		for _, nextAction := range nextActions {
 			nextState := applyAction(*state, &nextAction)
-			nextActionScore := minimax(&nextState, maxDepth-1, myPlayer)
-
-			if DEBUG && nextActionScore > value {
-				debug("New best value", nextActionScore, "for action", nextAction)
+			value = math.Max(value, minimax(&nextState, maxDepth-1, myPlayer, alpha, beta))
+			if value >= beta {
+				if DEBUG {
+					debug("Beta cutoff", value, "for action", nextAction)
+				}
+				break
 			}
 
-			value = math.Max(value, nextActionScore)
+			alpha = math.Max(alpha, value)
 		}
+		return value
 	} else {
 		if DEBUG {
 			debug("Taking min", maxDepth)
 		}
-		value = math.Inf(1)
+		value := math.Inf(1)
 		for _, nextAction := range nextActions {
 			nextState := applyAction(*state, &nextAction)
-			nextActionScore := math.Min(value, minimax(&nextState, maxDepth-1, myPlayer))
+			value = math.Min(value, minimax(&nextState, maxDepth-1, myPlayer, alpha, beta))
 
-			if DEBUG && nextActionScore < value {
-				debug("New best value", nextActionScore, "for action", nextAction)
+			if value <= alpha {
+				if DEBUG {
+					debug("Alpha cutoff", value, "for action", nextAction)
+				}
+				break
 			}
 
-			value = nextActionScore
+			beta = math.Min(beta, value)
 		}
+		return value
 	}
-
-	return value
 }
 
 func runMonteCarloSearch(state State, startTime int64, maxTimeMs int64) Action {
