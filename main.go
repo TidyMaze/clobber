@@ -348,13 +348,15 @@ func getValidActions(state *State) *[]Action {
 		for j := 0; j < 8; j++ {
 			from := int8(i*8 + j)
 			if state.grid[from] == currentPlayerCell {
+				opponentCell := getCellOfPlayer(getOpponent(state.player))
+
 				for id := 0; id < len(directions); id++ {
 					dX := int8(j) + directions[id].x
 					dY := int8(i) + directions[id].y
 
 					to := dY*8 + dX
 
-					if inMap(dX, dY) && isValidMove(&state.grid, from, to) {
+					if inMap(dX, dY) && state.grid[to] == opponentCell {
 						actions = append(actions, Action{
 							From: from,
 							To:   to,
@@ -384,12 +386,6 @@ func applyActionMut(state *State, action *Action) {
 	state.grid[action.From] = Empty
 	state.turn = state.turn + 1
 	state.player = getOpponent(state.player)
-}
-
-func isValidMove(grid *Grid, from int8, to int8) bool {
-	fromCell := &grid[from]
-	toCell := &grid[to]
-	return *fromCell != Empty && *toCell != Empty && *toCell != *fromCell
 }
 
 func getOpponent(p Player) Player {
