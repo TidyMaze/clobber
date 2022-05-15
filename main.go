@@ -450,14 +450,20 @@ func runMinimaxSearch(state *State, maxDepth int) Action {
 func minimax(state *State, maxDepth int, myPlayer Player, alpha float64, beta float64) float64 {
 	nextActions := getValidActions(state)
 
-	f, done := exitMaxDepth(state, maxDepth, myPlayer, nextActions)
-	if done {
-		return f
+	if maxDepth == 0 {
+		eval := minimaxEval(state, myPlayer, nextActions)
+		if DEBUG {
+			//debug("Reaching max depth", maxDepth, "eval", eval)
+		}
+		return eval
 	}
 
-	f2, done2 := exitLeaf(state, maxDepth, myPlayer, nextActions)
-	if done2 {
-		return f2
+	if len(*nextActions) == 0 {
+		eval := minimaxEval(state, myPlayer, nextActions)
+		if DEBUG {
+			debug("Reaching leaf node", maxDepth, "eval", eval)
+		}
+		return eval
 	}
 
 	if myPlayer == state.player {
@@ -497,28 +503,6 @@ func minimax(state *State, maxDepth int, myPlayer Player, alpha float64, beta fl
 		}
 		return value
 	}
-}
-
-func exitLeaf(state *State, maxDepth int, myPlayer Player, nextActions *[]Action) (float64, bool) {
-	if len(*nextActions) == 0 {
-		eval := minimaxEval(state, myPlayer, nextActions)
-		if DEBUG {
-			debug("Reaching leaf node", maxDepth, "eval", eval)
-		}
-		return eval, true
-	}
-	return 0, false
-}
-
-func exitMaxDepth(state *State, maxDepth int, myPlayer Player, nextActions *[]Action) (float64, bool) {
-	if maxDepth == 0 {
-		eval := minimaxEval(state, myPlayer, nextActions)
-		if DEBUG {
-			//debug("Reaching max depth", maxDepth, "eval", eval)
-		}
-		return eval, true
-	}
-	return 0, false
 }
 
 func runMonteCarloSearch(state State, startTime int64, maxTimeMs int64) Action {
