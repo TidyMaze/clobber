@@ -346,10 +346,12 @@ func getValidActions(state *State) *[]Action {
 	opponentCell := getCellOfPlayer(getOpponent(state.player))
 
 	actions := make([]Action, 0, 128)
+	a := Action{}
+
 	for i := 0; i < 8; i++ {
 		for j := 0; j < 8; j++ {
-			from := int8(i*8 + j)
-			if state.grid[from] == currentPlayerCell {
+			a.From = int8(i*8 + j)
+			if state.grid[a.From] == currentPlayerCell {
 				for id := 0; id < len(directions); id++ {
 					dX := int8(j) + directions[id].x
 					if dX < 0 || dX >= 8 {
@@ -361,13 +363,10 @@ func getValidActions(state *State) *[]Action {
 						continue
 					}
 
-					to := dY*8 + dX
+					a.To = dY*8 + dX
 
-					if state.grid[to] == opponentCell {
-						actions = append(actions, Action{
-							From: from,
-							To:   to,
-						})
+					if state.grid[a.To] == opponentCell {
+						actions = append(actions, a)
 					}
 				}
 			}
