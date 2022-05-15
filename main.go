@@ -400,18 +400,18 @@ func getOpponent(p Player) Player {
 }
 
 func minimaxEval(state *State, myPlayer Player) float64 {
-	myActionsCount := len(getValidActions(state))
+	actionsCount := len(getValidActions(state))
 
 	eval := math.Inf(-1)
 
-	if myActionsCount == 0 && myPlayer == state.player {
+	if actionsCount == 0 && myPlayer == state.player {
 		eval = -1000000.0 + float64(state.turn)
-	} else if myActionsCount == 0 && myPlayer != state.player {
+	} else if actionsCount == 0 && myPlayer != state.player {
 		eval = 1000000.0 - float64(state.turn)
 	} else if myPlayer == state.player {
-		eval = float64(myActionsCount)*1000 + float64(state.turn)
+		eval = float64(actionsCount)*1000 + float64(state.turn)
 	} else {
-		eval = float64(myActionsCount)*-1000 - float64(state.turn)
+		eval = float64(actionsCount)*-1000 - float64(state.turn)
 	}
 
 	debug("minimaxEval", state, " => ", eval)
