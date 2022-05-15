@@ -343,9 +343,9 @@ func getValidActions(state *State) []Action {
 	for i := 0; i < 8; i++ {
 		for j := 0; j < 8; j++ {
 			if state.grid[i*8+j] == currentPlayerCell {
-				for _, d := range directions {
-					dX := int8(j) + d.x
-					dY := int8(i) + d.y
+				for id := range directions {
+					dX := int8(j) + directions[id].x
+					dY := int8(i) + directions[id].y
 
 					if inMap(dX, dY) && isValidMove(&state.grid, int8(j), int8(i), dX, dY) {
 						if len(actions) == 128 {
