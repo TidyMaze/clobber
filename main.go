@@ -53,7 +53,7 @@ type Coord struct {
 }
 
 type Action struct {
-	From, To Coord
+	From, To int8
 }
 
 var directions = [4]Coord{
@@ -349,8 +349,8 @@ func getValidActions(state *State) []Action {
 
 					if inMap(dX, dY) && isValidMove(&state.grid, int8(j), int8(i), dX, dY) {
 						actions = append(actions, Action{
-							From: Coord{int8(j), int8(i)},
-							To:   Coord{dX, dY},
+							From: int8(i*8 + j),
+							To:   dY*8 + dX,
 						})
 					}
 				}
@@ -365,16 +365,16 @@ func inMap(dX int8, dY int8) bool {
 }
 
 func applyAction(state State, action *Action) State {
-	state.grid[action.To.y*8+action.To.x] = state.grid[action.From.y*8+action.From.x]
-	state.grid[action.From.y*8+action.From.x] = Empty
+	state.grid[action.To] = state.grid[action.From]
+	state.grid[action.From] = Empty
 	state.turn = state.turn + 1
 	state.player = getOpponent(state.player)
 	return state
 }
 
 func applyActionMut(state *State, action *Action) {
-	state.grid[action.To.y*8+action.To.x] = state.grid[action.From.y*8+action.From.x]
-	state.grid[action.From.y*8+action.From.x] = Empty
+	state.grid[action.To] = state.grid[action.From]
+	state.grid[action.From] = Empty
 	state.turn = state.turn + 1
 	state.player = getOpponent(state.player)
 }
@@ -416,7 +416,7 @@ func minimaxEval(state *State, myPlayer Player, nextActions []Action) float64 {
 func runMinimaxSearch(state *State) Action {
 	rootActions := getValidActions(state)
 
-	var bestAction Action = Action{From: Coord{-1, -1}, To: Coord{-1, -1}}
+	var bestAction Action = Action{From: -1, To: -1}
 	bestValue := math.Inf(-1)
 
 	maxDepth := 3
@@ -563,10 +563,10 @@ func randomAction(validActions []Action) Action {
 	return validActions[rand.Intn(len(validActions))]
 }
 
-func displayCoord(c Coord) string {
+func displayCoord(c int8) string {
 	// x maps to board columns from a to h
 	// y maps to board rows from 1 to 8 but reversed top to bottom
-	column := string(byte('a' + c.x))
-	row := strconv.Itoa(8 - int(c.y))
+	column := string(byte('a' + c%8))
+	row := strconv.Itoa(8 - int(c/8))
 	return column + row
 }
