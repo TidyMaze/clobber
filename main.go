@@ -399,8 +399,8 @@ func getOpponent(p Player) Player {
 	panic("invalid player value " + string(p))
 }
 
-func minimaxEval(state *State, myPlayer Player) float64 {
-	actionsCount := len(getValidActions(state))
+func minimaxEval(state *State, myPlayer Player, nextActions []Action) float64 {
+	actionsCount := len(nextActions)
 
 	eval := math.Inf(-1)
 
@@ -447,18 +447,18 @@ func runMinimaxSearch(state *State) Action {
 }
 
 func minimax(state *State, maxDepth int, myPlayer Player) float64 {
+	nextActions := getValidActions(state)
+
 	if maxDepth == 0 {
-		eval := minimaxEval(state, myPlayer)
+		eval := minimaxEval(state, myPlayer, nextActions)
 		if DEBUG {
 			debug("Reaching max depth", maxDepth, "eval", eval)
 		}
 		return eval
 	}
 
-	nextActions := getValidActions(state)
-
 	if len(nextActions) == 0 {
-		eval := minimaxEval(state, myPlayer)
+		eval := minimaxEval(state, myPlayer, nextActions)
 
 		if DEBUG {
 			debug("Reaching leaf node", maxDepth, "eval", eval)
