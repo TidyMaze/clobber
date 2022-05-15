@@ -459,7 +459,6 @@ func minimax(state *State, maxDepth int, myPlayer Player) float64 {
 
 	if len(nextActions) == 0 {
 		eval := minimaxEval(state, myPlayer, nextActions)
-
 		if DEBUG {
 			debug("Reaching leaf node", maxDepth, "eval", eval)
 		}
