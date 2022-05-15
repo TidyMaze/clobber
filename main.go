@@ -472,7 +472,14 @@ func minimax(state *State, maxDepth int, myPlayer Player) float64 {
 		}
 		value = math.Inf(-1)
 		for _, nextAction := range nextActions {
-			value = doMax(state, maxDepth, myPlayer, nextAction, value)
+			nextState := applyAction(*state, &nextAction)
+			nextActionScore := minimax(&nextState, maxDepth-1, myPlayer)
+
+			if DEBUG && nextActionScore > value {
+				debug("New best value", nextActionScore, "for action", nextAction)
+			}
+
+			value = math.Max(value, nextActionScore)
 		}
 	} else {
 		if DEBUG {
@@ -480,34 +487,17 @@ func minimax(state *State, maxDepth int, myPlayer Player) float64 {
 		}
 		value = math.Inf(1)
 		for _, nextAction := range nextActions {
-			value = doMin(state, maxDepth, myPlayer, nextAction, value)
+			nextState := applyAction(*state, &nextAction)
+			nextActionScore := math.Min(value, minimax(&nextState, maxDepth-1, myPlayer))
+
+			if DEBUG && nextActionScore < value {
+				debug("New best value", nextActionScore, "for action", nextAction)
+			}
+
+			value = nextActionScore
 		}
 	}
 
-	return value
-}
-
-func doMin(state *State, maxDepth int, myPlayer Player, nextAction Action, value float64) float64 {
-	nextState := applyAction(*state, &nextAction)
-	nextActionScore := math.Min(value, minimax(&nextState, maxDepth-1, myPlayer))
-
-	if DEBUG && nextActionScore < value {
-		debug("New best value", nextActionScore, "for action", nextAction)
-	}
-
-	value = nextActionScore
-	return value
-}
-
-func doMax(state *State, maxDepth int, myPlayer Player, nextAction Action, value float64) float64 {
-	nextState := applyAction(*state, &nextAction)
-	nextActionScore := minimax(&nextState, maxDepth-1, myPlayer)
-
-	if DEBUG && nextActionScore > value {
-		debug("New best value", nextActionScore, "for action", nextAction)
-	}
-
-	value = math.Max(value, nextActionScore)
 	return value
 }
 
