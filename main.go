@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-const DEBUG = false
+const DEBUG = true
 
 const MAX_TIME_MS_CG = 135
 const MAX_TIME_MS_LOCAL = 10 * 1000
@@ -435,7 +435,7 @@ func runMinimaxSearch(state *State, maxDepth int) Action {
 			bestValue = value
 			bestAction = action
 			if DEBUG {
-				debug("New best value", bestValue, "for action", action)
+				debug("New best GLOBAL value", bestValue, "for action", action)
 			}
 		}
 	}
@@ -449,7 +449,7 @@ func minimax(state *State, maxDepth int, myPlayer Player) float64 {
 	if maxDepth == 0 {
 		eval := minimaxEval(state, myPlayer, nextActions)
 		if DEBUG {
-			debug("Reaching max depth", maxDepth, "eval", eval)
+			//debug("Reaching max depth", maxDepth, "eval", eval)
 		}
 		return eval
 	}
