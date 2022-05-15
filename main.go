@@ -296,7 +296,7 @@ func main() {
 
 		state := State{
 			grid:   grid,
-			turn:   turn,
+			turn:   0,
 			player: myPlayer,
 		}
 
@@ -438,9 +438,9 @@ func runMinimaxSearch(state *State, maxDepth int) Action {
 		if value > bestValue {
 			bestValue = value
 			bestAction = action
-			if DEBUG {
-				debug("New best GLOBAL value", bestValue, "for action", action)
-			}
+			//if DEBUG {
+			debug("New best GLOBAL value", bestValue, "for action", action)
+			//}
 		}
 	}
 
