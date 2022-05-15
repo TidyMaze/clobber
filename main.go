@@ -481,7 +481,6 @@ func minimax(state *State, maxDepth int, myPlayer Player, alpha float64, beta fl
 				}
 				break
 			}
-
 			alpha = math.Max(alpha, value)
 		}
 		return value
@@ -494,14 +493,12 @@ func minimax(state *State, maxDepth int, myPlayer Player, alpha float64, beta fl
 			nextAction := &(*nextActions)[iNextAction]
 			nextState := applyAction(*state, nextAction)
 			value = math.Min(value, minimax(nextState, maxDepth-1, myPlayer, alpha, beta))
-
 			if value <= alpha {
 				if DEBUG {
 					debug("Alpha cutoff", value, "for action", nextAction)
 				}
 				break
 			}
-
 			beta = math.Min(beta, value)
 		}
 		return value
