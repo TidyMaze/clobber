@@ -490,8 +490,9 @@ func minimax(state *State, maxDepth int, myPlayer Player, alpha float64, beta fl
 			debug("Taking min", maxDepth)
 		}
 		value := math.Inf(1)
-		for _, nextAction := range *nextActions {
-			nextState := applyAction(*state, &nextAction)
+		for iNextAction := 0; iNextAction < len(*nextActions); iNextAction++ {
+			nextAction := &(*nextActions)[iNextAction]
+			nextState := applyAction(*state, nextAction)
 			value = math.Min(value, minimax(nextState, maxDepth-1, myPlayer, alpha, beta))
 
 			if value <= alpha {
