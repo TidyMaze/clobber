@@ -339,7 +339,7 @@ func getCellOfPlayer(p Player) Cell {
 
 func getValidActions(state *State) []Action {
 	currentPlayerCell := getCellOfPlayer(state.player)
-	actions := make([]Action, 0, 16)
+	actions := make([]Action, 0, 128)
 	for i := 0; i < 8; i++ {
 		for j := 0; j < 8; j++ {
 			if state.grid[i*8+j] == currentPlayerCell {
@@ -472,14 +472,7 @@ func minimax(state *State, maxDepth int, myPlayer Player) float64 {
 		}
 		value = math.Inf(-1)
 		for _, nextAction := range nextActions {
-			nextState := applyAction(*state, &nextAction)
-			nextActionScore := minimax(&nextState, maxDepth-1, myPlayer)
-
-			if DEBUG && nextActionScore > value {
-				debug("New best value", nextActionScore, "for action", nextAction)
-			}
-
-			value = math.Max(value, nextActionScore)
+			value = doMax(state, maxDepth, myPlayer, nextAction, value)
 		}
 	} else {
 		if DEBUG {
@@ -487,17 +480,34 @@ func minimax(state *State, maxDepth int, myPlayer Player) float64 {
 		}
 		value = math.Inf(1)
 		for _, nextAction := range nextActions {
-			nextState := applyAction(*state, &nextAction)
-			nextActionScore := math.Min(value, minimax(&nextState, maxDepth-1, myPlayer))
-
-			if DEBUG && nextActionScore < value {
-				debug("New best value", nextActionScore, "for action", nextAction)
-			}
-
-			value = nextActionScore
+			value = doMin(state, maxDepth, myPlayer, nextAction, value)
 		}
 	}
 
+	return value
+}
+
+func doMin(state *State, maxDepth int, myPlayer Player, nextAction Action, value float64) float64 {
+	nextState := applyAction(*state, &nextAction)
+	nextActionScore := math.Min(value, minimax(&nextState, maxDepth-1, myPlayer))
+
+	if DEBUG && nextActionScore < value {
+		debug("New best value", nextActionScore, "for action", nextAction)
+	}
+
+	value = nextActionScore
+	return value
+}
+
+func doMax(state *State, maxDepth int, myPlayer Player, nextAction Action, value float64) float64 {
+	nextState := applyAction(*state, &nextAction)
+	nextActionScore := minimax(&nextState, maxDepth-1, myPlayer)
+
+	if DEBUG && nextActionScore > value {
+		debug("New best value", nextActionScore, "for action", nextAction)
+	}
+
+	value = math.Max(value, nextActionScore)
 	return value
 }
 
