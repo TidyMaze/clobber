@@ -352,11 +352,18 @@ func getValidActions(state *State) *[]Action {
 
 				for id := 0; id < len(directions); id++ {
 					dX := int8(j) + directions[id].x
+					if dX < 0 || dX >= 8 {
+						continue
+					}
+
 					dY := int8(i) + directions[id].y
+					if dY < 0 || dY >= 8 {
+						continue
+					}
 
 					to := dY*8 + dX
 
-					if inMap(dX, dY) && state.grid[to] == opponentCell {
+					if state.grid[to] == opponentCell {
 						actions = append(actions, Action{
 							From: from,
 							To:   to,
