@@ -297,7 +297,7 @@ func main() {
 		state := State{
 			grid:   grid,
 			turn:   0,
-			player: myPlayer,
+			player: myPlayer, // which player has to play after this turn
 		}
 
 		// actionsCount: number of legal actions
@@ -466,7 +466,9 @@ func minimax(state *State, maxDepth int, myPlayer Player, alpha float64, beta fl
 		return eval
 	}
 
-	if myPlayer == state.player {
+	whoPlayed := getOpponent(state.player)
+
+	if whoPlayed == myPlayer {
 		if DEBUG {
 			debug("Taking max", maxDepth)
 		}
