@@ -343,13 +343,13 @@ func getCellOfPlayer(p Player) Cell {
 
 func getValidActions(state *State) *[]Action {
 	currentPlayerCell := getCellOfPlayer(state.player)
+	opponentCell := getCellOfPlayer(getOpponent(state.player))
+
 	actions := make([]Action, 0, 128)
 	for i := 0; i < 8; i++ {
 		for j := 0; j < 8; j++ {
 			from := int8(i*8 + j)
 			if state.grid[from] == currentPlayerCell {
-				opponentCell := getCellOfPlayer(getOpponent(state.player))
-
 				for id := 0; id < len(directions); id++ {
 					dX := int8(j) + directions[id].x
 					if dX < 0 || dX >= 8 {
