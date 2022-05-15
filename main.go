@@ -150,7 +150,7 @@ func expandMCTS(node *MCTSNode) {
 			//debug(fmt.Sprintf("expandMCTS child %s", showNode(child)))
 		}
 
-		node.children = append(node.children, &MCTSNode{node_count, childState, &(*actions)[i], 0, 0, node, []*MCTSNode{}})
+		node.children = append(node.children, &MCTSNode{node_count, *childState, &(*actions)[i], 0, 0, node, []*MCTSNode{}})
 	}
 }
 
@@ -371,12 +371,12 @@ func inMap(dX int8, dY int8) bool {
 	return dX >= 0 && dX < 8 && dY >= 0 && dY < 8
 }
 
-func applyAction(state State, action *Action) State {
+func applyAction(state State, action *Action) *State {
 	state.grid[action.To] = state.grid[action.From]
 	state.grid[action.From] = Empty
 	state.turn = state.turn + 1
 	state.player = getOpponent(state.player)
-	return state
+	return &state
 }
 
 func applyActionMut(state *State, action *Action) {
@@ -471,9 +471,10 @@ func minimax(state *State, maxDepth int, myPlayer Player, alpha float64, beta fl
 			debug("Taking max", maxDepth)
 		}
 		value := math.Inf(-1)
-		for _, nextAction := range *nextActions {
-			nextState := applyAction(*state, &nextAction)
-			value = math.Max(value, minimax(&nextState, maxDepth-1, myPlayer, alpha, beta))
+		for iNextAction := range *nextActions {
+			nextAction := &(*nextActions)[iNextAction]
+			nextState := applyAction(*state, nextAction)
+			value = math.Max(value, minimax(nextState, maxDepth-1, myPlayer, alpha, beta))
 			if value >= beta {
 				if DEBUG {
 					debug("Beta cutoff", value, "for action", nextAction)
@@ -491,7 +492,7 @@ func minimax(state *State, maxDepth int, myPlayer Player, alpha float64, beta fl
 		value := math.Inf(1)
 		for _, nextAction := range *nextActions {
 			nextState := applyAction(*state, &nextAction)
-			value = math.Min(value, minimax(&nextState, maxDepth-1, myPlayer, alpha, beta))
+			value = math.Min(value, minimax(nextState, maxDepth-1, myPlayer, alpha, beta))
 
 			if value <= alpha {
 				if DEBUG {
@@ -514,7 +515,7 @@ func runMonteCarloSearch(state State, startTime int64, maxTimeMs int64) Action {
 	for (time.Now().UnixMilli() - startTime) < int64(maxTimeMs) {
 		rootAction := (*rootActions)[actionRobin%len(*rootActions)]
 		currentState := applyAction(state, &rootAction)
-		winner := playUntilEnd(currentState)
+		winner := playUntilEnd(*currentState)
 
 		winScore := 0
 		if winner == state.player {
