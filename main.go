@@ -383,9 +383,9 @@ func applyActionMut(state *State, action *Action) {
 }
 
 func isValidMove(grid *Grid, from int8, to int8) bool {
-	fromCell := grid[from]
-	toCell := grid[to]
-	return fromCell != Empty && toCell != Empty && toCell != fromCell
+	fromCell := &grid[from]
+	toCell := &grid[to]
+	return *fromCell != Empty && *toCell != Empty && *toCell != *fromCell
 }
 
 func getOpponent(p Player) Player {
