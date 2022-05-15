@@ -193,7 +193,7 @@ func showTree(node *MCTSNode, padding int) {
 	}
 }
 
-func searchMCTS(node *MCTSNode, startTime int64, maxTimeMs int64) *MCTSNode {
+func mcts(node *MCTSNode, startTime int64, maxTimeMs int64) *MCTSNode {
 	playouts = 0
 	if DEBUG {
 		debug("initial node", showNode(node))
@@ -307,18 +307,21 @@ func main() {
 			panic("invalid number of actions: " + strconv.Itoa(len(validActions)) + " != " + strconv.Itoa(actionsCount))
 		}
 
-		node_count = 0
-
-		//debug("Starting Monte Carlo")
-		rootNode := MCTSNode{node_count, state, nil, 0, 0, nil, []*MCTSNode{}}
-		node_count++
-		bestNode := searchMCTS(&rootNode, startTime, MAX_TIME_MS_CG)
+		bestNode := runMCTSSearch(state, startTime, MAX_TIME_MS_CG)
 		bestAction := bestNode.action
 		debug("bestAction", *bestAction, showNode(bestNode), "after", playouts, "playouts")
 
 		fmt.Println(displayCoord(bestAction.From) + displayCoord(bestAction.To))
 		turn++
 	}
+}
+
+func runMCTSSearch(state State, startTime int64, maxTime int64) *MCTSNode {
+	node_count = 0
+	rootNode := MCTSNode{node_count, state, nil, 0, 0, nil, []*MCTSNode{}}
+	node_count++
+	bestNode := mcts(&rootNode, startTime, maxTime)
+	return bestNode
 }
 
 func debug(v ...interface{}) {
@@ -407,11 +410,14 @@ func runMinimaxSearch(state *State) Action {
 	var bestAction *Action = nil
 	bestValue := math.Inf(-1)
 
+	maxDepth := 5
+
+	debug("Taking max", maxDepth)
 	for _, action := range rootActions {
 		stateCopy := *state
 		applyActionMut(&stateCopy, &action)
 
-		value := minimax(&stateCopy, 5, stateCopy.player)
+		value := minimax(&stateCopy, maxDepth-1, getOpponent(stateCopy.player))
 		if value > bestValue {
 			bestValue = value
 			bestAction = &action
@@ -434,12 +440,14 @@ func minimax(state *State, maxDepth int, maximizingPlayer Player) float64 {
 
 	value := 0.0
 	if maximizingPlayer == state.player {
+		debug("Taking max", maxDepth)
 		value = math.Inf(-1)
 		for _, nextAction := range nextActions {
 			nextState := applyAction(*state, &nextAction)
 			value = math.Max(value, minimax(&nextState, maxDepth-1, getOpponent(maximizingPlayer)))
 		}
 	} else {
+		debug("Taking min", maxDepth)
 		value = math.Inf(1)
 		for _, nextAction := range nextActions {
 			nextState := applyAction(*state, &nextAction)

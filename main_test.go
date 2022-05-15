@@ -27,12 +27,8 @@ func Test(t *testing.T) {
 		player: WhitePlayer,
 	}
 
-	rootNode := MCTSNode{node_count, state, nil, 0, 0, nil, []*MCTSNode{}}
-	node_count++
-
 	startTime := time.Now().UnixMilli()
-
-	bestNode := searchMCTS(&rootNode, startTime, MAX_TIME_MS_LOCAL)
+	bestNode := runMCTSSearch(state, startTime, MAX_TIME_MS_LOCAL)
 	best := bestNode.action
 	debug("best", displayCoord(best.From)+displayCoord(best.To), showNode(bestNode), "after", playouts, "playouts")
 }
