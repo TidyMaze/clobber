@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-const DEBUG = false
+const DEBUG = true
 
 const MAX_TIME_MS_CG = 135
 const MAX_TIME_MS_LOCAL = 10 * 1000
@@ -54,6 +54,10 @@ type Coord struct {
 
 type Action struct {
 	From, To int8
+}
+
+func (a Action) String() string {
+	return fmt.Sprintf("%s%s", displayCoord(a.From), displayCoord(a.To))
 }
 
 var directions = [4]Coord{
@@ -310,7 +314,7 @@ func main() {
 		bestAction := runMinimaxSearch(&state, 3)
 		debug("bestAction", bestAction, "after", playouts, "playouts")
 
-		fmt.Println(displayCoord(bestAction.From) + displayCoord(bestAction.To))
+		fmt.Println(bestAction)
 		turn++
 	}
 }

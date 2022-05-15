@@ -29,5 +29,5 @@ func Test(t *testing.T) {
 
 	//startTime := time.Now().UnixMilli()
 	bestAction := runMinimaxSearch(&state, 3)
-	debug("best", displayCoord(bestAction.From)+displayCoord(bestAction.To))
+	debug("best", bestAction)
 }
