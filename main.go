@@ -311,7 +311,7 @@ func main() {
 			panic("invalid number of actions: " + strconv.Itoa(len(*validActions)) + " != " + strconv.Itoa(actionsCount))
 		}
 
-		bestAction := runMinimaxSearch(&state, 3)
+		bestAction := runMinimaxSearch(&state, 2)
 		debug("bestAction", bestAction, "after", playouts, "playouts")
 
 		fmt.Println(bestAction)
@@ -453,7 +453,7 @@ func minimax(state *State, maxDepth int, myPlayer Player, alpha float64, beta fl
 	if maxDepth == 0 {
 		eval := minimaxEval(state, myPlayer, nextActions)
 		if DEBUG {
-			//debug("Reaching max depth", maxDepth, "eval", eval)
+			debug("Reaching max depth", maxDepth, "eval", eval)
 		}
 		return eval
 	}
