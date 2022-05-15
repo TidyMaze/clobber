@@ -268,12 +268,12 @@ func main() {
 
 		grid := Grid{}
 
-		startTime := int64(0)
+		//startTime := int64(0)
 		for i := 0; i < boardSize; i++ {
 			// line: horizontal row
 			var line string
 			fmt.Scan(&line)
-			startTime = time.Now().UnixMilli()
+			//startTime = time.Now().UnixMilli()
 
 			for j := 0; j < boardSize; j++ {
 				grid[i*8+j] = charToCell(line[j])
@@ -307,9 +307,8 @@ func main() {
 			panic("invalid number of actions: " + strconv.Itoa(len(validActions)) + " != " + strconv.Itoa(actionsCount))
 		}
 
-		bestNode := runMCTSSearch(state, startTime, MAX_TIME_MS_CG)
-		bestAction := bestNode.action
-		debug("bestAction", *bestAction, showNode(bestNode), "after", playouts, "playouts")
+		bestAction := runMinimaxSearch(&state)
+		debug("bestAction", bestAction, "after", playouts, "playouts")
 
 		fmt.Println(displayCoord(bestAction.From) + displayCoord(bestAction.To))
 		turn++
@@ -400,8 +399,23 @@ func getOpponent(p Player) Player {
 	panic("invalid player value " + string(p))
 }
 
-func minimaxEval(state *State) float64 {
-	return 42.0
+func minimaxEval(state *State, myPlayer Player) float64 {
+	myActionsCount := len(getValidActions(state))
+
+	eval := math.Inf(-1)
+
+	if myActionsCount == 0 && myPlayer == state.player {
+		eval = -1000000.0 + float64(state.turn)
+	} else if myActionsCount == 0 && myPlayer != state.player {
+		eval = 1000000.0 - float64(state.turn)
+	} else if myPlayer == state.player {
+		eval = float64(myActionsCount)*1000 + float64(state.turn)
+	} else {
+		eval = float64(myActionsCount)*-1000 - float64(state.turn)
+	}
+
+	debug("minimaxEval", state, " => ", eval)
+	return eval
 }
 
 func runMinimaxSearch(state *State) Action {
@@ -417,7 +431,7 @@ func runMinimaxSearch(state *State) Action {
 		stateCopy := *state
 		applyActionMut(&stateCopy, &action)
 
-		value := minimax(&stateCopy, maxDepth-1, getOpponent(stateCopy.player))
+		value := minimax(&stateCopy, maxDepth-1, getOpponent(stateCopy.player), state.player)
 		if value > bestValue {
 			bestValue = value
 			bestAction = &action
@@ -427,15 +441,16 @@ func runMinimaxSearch(state *State) Action {
 	return *bestAction
 }
 
-func minimax(state *State, maxDepth int, maximizingPlayer Player) float64 {
+func minimax(state *State, maxDepth int, maximizingPlayer Player, myPlayer Player) float64 {
 	if maxDepth == 0 {
-		return minimaxEval(state)
+		return minimaxEval(state, myPlayer)
 	}
 
 	nextActions := getValidActions(state)
 
 	if len(nextActions) == 0 {
-		return minimaxEval(state)
+		debug("no actions after  state", state)
+		return minimaxEval(state, myPlayer)
 	}
 
 	value := 0.0
@@ -444,14 +459,14 @@ func minimax(state *State, maxDepth int, maximizingPlayer Player) float64 {
 		value = math.Inf(-1)
 		for _, nextAction := range nextActions {
 			nextState := applyAction(*state, &nextAction)
-			value = math.Max(value, minimax(&nextState, maxDepth-1, getOpponent(maximizingPlayer)))
+			value = math.Max(value, minimax(&nextState, maxDepth-1, nextState.player, myPlayer))
 		}
 	} else {
 		debug("Taking min", maxDepth)
 		value = math.Inf(1)
 		for _, nextAction := range nextActions {
 			nextState := applyAction(*state, &nextAction)
-			value = math.Min(value, minimax(&nextState, maxDepth-1, getOpponent(maximizingPlayer)))
+			value = math.Min(value, minimax(&nextState, maxDepth-1, nextState.player, myPlayer))
 		}
 	}
 
