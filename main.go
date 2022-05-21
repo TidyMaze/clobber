@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-const DEBUG = false
+const DEBUG = true
 
 const MAX_TIME_MS_CG = 135
 const MAX_TIME_MS_LOCAL = 10 * 1000
@@ -351,6 +351,7 @@ func getValidActions(state *State) *[]Action {
 	for i := 0; i < 8; i++ {
 		for j := 0; j < 8; j++ {
 			a.From = int8(i*8 + j)
+
 			if state.grid[a.From] == currentPlayerCell {
 				for id := 0; id < len(directions); id++ {
 					dX := int8(j) + directions[id].x
@@ -455,7 +456,7 @@ func minimax(state *State, maxDepth int, myPlayer Player, alpha float64, beta fl
 	if maxDepth == 0 {
 		eval := minimaxEval(state, myPlayer, nextActions)
 		if DEBUG {
-			debug("Reaching max depth", maxDepth, "eval", eval)
+			//debug("Reaching max depth", maxDepth, "eval", eval)
 		}
 		return eval
 	}
@@ -472,7 +473,7 @@ func minimax(state *State, maxDepth int, myPlayer Player, alpha float64, beta fl
 
 	if whoPlayed == myPlayer {
 		if DEBUG {
-			debug("Taking max", maxDepth)
+			debug("Next player", state.player, "who played", whoPlayed, "Taking max", maxDepth)
 		}
 		value := math.Inf(-1)
 		for iNextAction := 0; iNextAction < len(*nextActions); iNextAction++ {
@@ -490,7 +491,7 @@ func minimax(state *State, maxDepth int, myPlayer Player, alpha float64, beta fl
 		return value
 	} else {
 		if DEBUG {
-			debug("Taking min", maxDepth)
+			debug("Next player", state.player, "who played", whoPlayed, "Taking min", maxDepth)
 		}
 		value := math.Inf(1)
 		for iNextAction := 0; iNextAction < len(*nextActions); iNextAction++ {
