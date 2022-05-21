@@ -311,10 +311,10 @@ func main() {
 			panic("invalid number of actions: " + strconv.Itoa(len(*validActions)) + " != " + strconv.Itoa(actionsCount))
 		}
 
-		bestAction := runMinimaxSearch(&state, 2)
-		debug("bestAction", bestAction, "after", playouts, "playouts")
+		bestAction, bestValue := runMinimaxSearch(&state, 2)
+		debug("bestAction", bestAction, "bestValue", bestValue, "after", playouts, "playouts")
 
-		fmt.Println(bestAction)
+		fmt.Println(fmt.Sprintf("%s %.2f", bestAction, bestValue))
 		turn++
 	}
 }
@@ -423,7 +423,7 @@ func stateEval(state *State, myPlayer Player, nextActions *[]Action) float64 {
 	return eval
 }
 
-func runMinimaxSearch(state *State, maxDepth int) Action {
+func runMinimaxSearch(state *State, maxDepth int) (Action, float64) {
 	rootActions := getValidActions(state)
 
 	var bestAction Action = Action{From: -1, To: -1}
@@ -447,7 +447,7 @@ func runMinimaxSearch(state *State, maxDepth int) Action {
 		}
 	}
 
-	return bestAction
+	return bestAction, bestValue
 }
 
 func negamax(state *State, maxDepth int, myPlayer Player, alpha float64, beta float64, color int) float64 {
