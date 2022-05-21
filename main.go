@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-const DEBUG = true
+const DEBUG = false
 
 const MAX_TIME_MS_CG = 135
 const MAX_TIME_MS_LOCAL = 10 * 1000
@@ -405,7 +405,7 @@ func getOpponent(p Player) Player {
 	panic("invalid player value " + string(p))
 }
 
-func minimaxEval(state *State, myPlayer Player, nextActions *[]Action) float64 {
+func stateEval(state *State, myPlayer Player, nextActions *[]Action) float64 {
 	actionsCount := len(*nextActions)
 
 	eval := math.Inf(-1)
@@ -437,7 +437,7 @@ func runMinimaxSearch(state *State, maxDepth int) Action {
 		stateCopy := *state
 		applyActionMut(&stateCopy, &action)
 
-		value := minimax(&stateCopy, maxDepth-1, state.player, math.Inf(-1), math.Inf(1))
+		value := -negamax(&stateCopy, maxDepth-1, state.player, math.Inf(-1), math.Inf(1), -1)
 		if value > bestValue {
 			bestValue = value
 			bestAction = action
@@ -450,64 +450,46 @@ func runMinimaxSearch(state *State, maxDepth int) Action {
 	return bestAction
 }
 
-func minimax(state *State, maxDepth int, myPlayer Player, alpha float64, beta float64) float64 {
+func negamax(state *State, maxDepth int, myPlayer Player, alpha float64, beta float64, color int) float64 {
 	nextActions := getValidActions(state)
 
 	if maxDepth == 0 {
-		eval := minimaxEval(state, myPlayer, nextActions)
+		eval := stateEval(state, myPlayer, nextActions)
 		if DEBUG {
 			//debug("Reaching max depth", maxDepth, "eval", eval)
 		}
-		return eval
+		return float64(color) * eval
 	}
 
 	if len(*nextActions) == 0 {
-		eval := minimaxEval(state, myPlayer, nextActions)
+		eval := stateEval(state, myPlayer, nextActions)
 		if DEBUG {
 			debug("Reaching leaf node", maxDepth, "eval", eval)
 		}
-		return eval
+		return float64(color) * eval
 	}
 
 	whoPlayed := getOpponent(state.player)
 
-	if whoPlayed == myPlayer {
-		if DEBUG {
-			debug("Next player", state.player, "who played", whoPlayed, "Taking max", maxDepth)
-		}
-		value := math.Inf(-1)
-		for iNextAction := 0; iNextAction < len(*nextActions); iNextAction++ {
-			nextAction := &(*nextActions)[iNextAction]
-			nextState := applyAction(*state, nextAction)
-			value = math.Max(value, minimax(nextState, maxDepth-1, myPlayer, alpha, beta))
-			if value >= beta {
-				if DEBUG {
-					debug("Beta cutoff", value, "for action", nextAction)
-				}
-				break
-			}
-			alpha = math.Max(alpha, value)
-		}
-		return value
-	} else {
-		if DEBUG {
-			debug("Next player", state.player, "who played", whoPlayed, "Taking min", maxDepth)
-		}
-		value := math.Inf(1)
-		for iNextAction := 0; iNextAction < len(*nextActions); iNextAction++ {
-			nextAction := &(*nextActions)[iNextAction]
-			nextState := applyAction(*state, nextAction)
-			value = math.Min(value, minimax(nextState, maxDepth-1, myPlayer, alpha, beta))
-			if value <= alpha {
-				if DEBUG {
-					debug("Alpha cutoff", value, "for action", nextAction)
-				}
-				break
-			}
-			beta = math.Min(beta, value)
-		}
-		return value
+	if DEBUG {
+		debug("Next player", state.player, "who played", whoPlayed, "Depth", maxDepth)
 	}
+	value := math.Inf(-1)
+	for iNextAction := 0; iNextAction < len(*nextActions); iNextAction++ {
+		nextAction := &(*nextActions)[iNextAction]
+		nextState := applyAction(*state, nextAction)
+		value = math.Max(value, -negamax(nextState, maxDepth-1, myPlayer, -beta, -alpha, -color))
+
+		alpha = math.Max(alpha, value)
+
+		if alpha >= beta {
+			if DEBUG {
+				debug("Cutoff", value, "for action", nextAction)
+			}
+			break
+		}
+	}
+	return value
 }
 
 func runMonteCarloSearch(state State, startTime int64, maxTimeMs int64) Action {
