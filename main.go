@@ -272,12 +272,12 @@ func main() {
 
 		grid := Grid{}
 
-		//startTime := int64(0)
+		startTime := int64(0)
 		for i := 0; i < boardSize; i++ {
 			// line: horizontal row
 			var line string
 			fmt.Scan(&line)
-			//startTime = time.Now().UnixMilli()
+			startTime = time.Now().UnixMilli()
 
 			for j := 0; j < boardSize; j++ {
 				grid[i*8+j] = charToCell(line[j])
@@ -311,7 +311,7 @@ func main() {
 			panic("invalid number of actions: " + strconv.Itoa(len(*validActions)) + " != " + strconv.Itoa(actionsCount))
 		}
 
-		bestAction, bestValue := runMinimaxSearch(&state, 2)
+		bestAction, bestValue := runMCTSSearch(state, startTime, MAX_TIME_MS_CG)
 		debug("bestAction", bestAction, "bestValue", bestValue, "after", playouts, "playouts")
 
 		fmt.Println(fmt.Sprintf("%s %.2f", bestAction, bestValue))
@@ -319,12 +319,12 @@ func main() {
 	}
 }
 
-func runMCTSSearch(state State, startTime int64, maxTime int64) *MCTSNode {
+func runMCTSSearch(state State, startTime int64, maxTime int64) (*Action, float64) {
 	node_count = 0
 	rootNode := MCTSNode{node_count, state, nil, 0, 0, nil, []*MCTSNode{}}
 	node_count++
 	bestNode := mcts(&rootNode, startTime, maxTime)
-	return bestNode
+	return bestNode.action, float64(bestNode.visits)
 }
 
 func debug(v ...interface{}) {
