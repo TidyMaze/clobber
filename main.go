@@ -152,7 +152,7 @@ func expandMCTS(node *MCTSNode) {
 			//debug(fmt.Sprintf("expandMCTS child %s", showNode(child)))
 		}
 
-		newNode := newNode(node, childState, actions, i)
+		newNode := newNode(node, childState, &(*actions)[i])
 		addToChildren(node, newNode)
 	}
 }
@@ -161,8 +161,8 @@ func addToChildren(node *MCTSNode, newNode *MCTSNode) {
 	node.children = append(node.children, newNode)
 }
 
-func newNode(node *MCTSNode, childState *State, actions *[]Action, i int) *MCTSNode {
-	return &MCTSNode{node_count, childState, &(*actions)[i], 0, 0, node, make([]*MCTSNode, 0)}
+func newNode(node *MCTSNode, childState *State, action *Action) *MCTSNode {
+	return &MCTSNode{node_count, childState, action, 0, 0, node, make([]*MCTSNode, 0)}
 }
 
 func simulateMCTS(node *MCTSNode) (*MCTSNode, Player) {
