@@ -29,5 +29,5 @@ func Test(t *testing.T) {
 
 	startTime := time.Now().UnixMilli()
 	bestAction, bestValue := runMCTSSearch(state, startTime, MAX_TIME_MS_LOCAL)
-	debug("best", bestAction, "value", bestValue)
+	debug("best", bestAction, "value", bestValue, "playouts", playouts)
 }
