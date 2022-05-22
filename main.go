@@ -74,7 +74,7 @@ type MonteCarloResult struct {
 
 type MCTSNode struct {
 	id       int
-	state    State
+	state    *State
 	action   *Action
 	visits   int
 	wins     int
@@ -140,18 +140,29 @@ func selectionMCTS(node *MCTSNode) *MCTSNode {
 }
 
 func expandMCTS(node *MCTSNode) {
-	actions := getValidActions(&node.state)
+	actions := getValidActions(node.state)
 
-	for i := 0; i < len(*actions); i++ {
-		childState := applyAction(node.state, &(*actions)[i])
+	max := len(*actions)
+
+	for i := 0; i < max; i++ {
+		childState := applyAction(*node.state, &(*actions)[i])
 		node_count++
 
 		if DEBUG {
 			//debug(fmt.Sprintf("expandMCTS child %s", showNode(child)))
 		}
 
-		node.children = append(node.children, &MCTSNode{node_count, *childState, &(*actions)[i], 0, 0, node, []*MCTSNode{}})
+		newNode := newNode(node, childState, actions, i)
+		addToChildren(node, newNode)
 	}
+}
+
+func addToChildren(node *MCTSNode, newNode *MCTSNode) {
+	node.children = append(node.children, newNode)
+}
+
+func newNode(node *MCTSNode, childState *State, actions *[]Action, i int) *MCTSNode {
+	return &MCTSNode{node_count, childState, &(*actions)[i], 0, 0, node, make([]*MCTSNode, 0)}
 }
 
 func simulateMCTS(node *MCTSNode) (*MCTSNode, Player) {
@@ -167,7 +178,7 @@ func simulateMCTS(node *MCTSNode) (*MCTSNode, Player) {
 		showTree(node, 0)
 	}
 
-	return child, playUntilEnd(child.state)
+	return child, playUntilEnd(*child.state)
 }
 
 func backPropagateMCTS(node *MCTSNode, winner Player) {
@@ -321,7 +332,7 @@ func main() {
 
 func runMCTSSearch(state State, startTime int64, maxTime int64) (*Action, float64) {
 	node_count = 0
-	rootNode := MCTSNode{node_count, state, nil, 0, 0, nil, []*MCTSNode{}}
+	rootNode := MCTSNode{node_count, &state, nil, 0, 0, nil, []*MCTSNode{}}
 	node_count++
 	bestNode := mcts(&rootNode, startTime, maxTime)
 	return bestNode.action, float64(bestNode.visits)
