@@ -23,7 +23,7 @@ type Grid = [64]Cell
 
 type State struct {
 	grid   Grid
-	turn   int
+	turn   uint8
 	player Player
 }
 
