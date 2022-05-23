@@ -143,6 +143,7 @@ func expandMCTS(node *MCTSNode) {
 	actions := getValidActions(&node.state)
 
 	max := len(*actions)
+	node.children = make([]MCTSNode, 0, max)
 
 	for i := 0; i < max; i++ {
 		action := &(*actions)[i]
