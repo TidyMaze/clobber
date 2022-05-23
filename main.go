@@ -41,11 +41,11 @@ const (
 	Black
 )
 
-type Player uint8
+type Player bool
 
 const (
-	WhitePlayer Player = iota + 1
-	BlackPlayer
+	WhitePlayer Player = false
+	BlackPlayer Player = true
 )
 
 type Coord struct {
@@ -186,7 +186,7 @@ func backPropagateMCTS(node *MCTSNode, winner Player) {
 	node.visits++
 
 	if DEBUG {
-		debug(fmt.Sprintf("backPropagateMCTS   %s with winner %d  ", showNode(node), winner))
+		debug(fmt.Sprintf("backPropagateMCTS   %s with winner %t  ", showNode(node), winner))
 	}
 
 	if node.parent != nil {
@@ -344,7 +344,7 @@ func getCellOfPlayer(p Player) Cell {
 	case BlackPlayer:
 		return Black
 	}
-	panic("invalid player value " + string(p))
+	panic("invalid player value " + strconv.FormatBool(bool(p)))
 }
 
 func getValidActions(state *State) *[]Action {
@@ -408,7 +408,7 @@ func getOpponent(p Player) Player {
 	case BlackPlayer:
 		return WhitePlayer
 	}
-	panic("invalid player value " + string(p))
+	panic("invalid player value " + strconv.FormatBool(bool(p)))
 }
 
 func stateEval(state *State, myPlayer Player, nextActions *[]Action) float64 {
