@@ -74,12 +74,12 @@ type MonteCarloResult struct {
 
 type MCTSNode struct {
 	id       int
-	state    *State
-	action   *Action
+	state    State
+	action   Action
 	visits   int
 	wins     int
 	parent   *MCTSNode
-	children []*MCTSNode
+	children []MCTSNode
 }
 
 func uctMCTS(node *MCTSNode) float64 {
@@ -104,9 +104,9 @@ func showNode(node *MCTSNode) string {
 	}
 
 	action := "nil"
-	if node.action != nil {
-		action = fmt.Sprintf("%v", *node.action)
-	}
+	//if node.action != nil {
+	action = fmt.Sprintf("%v", node.action)
+	//}
 
 	return fmt.Sprintf("node %d wins %d visits %d uct %f parent %s action %s", node.id, node.wins, node.visits, uct, parentNodeId, action)
 }
@@ -123,11 +123,11 @@ func selectionMCTS(node *MCTSNode) *MCTSNode {
 	var bestChild *MCTSNode
 	var bestValue float64
 
-	for _, child := range node.children {
-		value := uctMCTS(child)
+	for childId := 0; childId < len(node.children); childId++ {
+		value := uctMCTS(&node.children[childId])
 
 		if bestChild == nil || value > bestValue {
-			bestChild = child
+			bestChild = &node.children[childId]
 			bestValue = value
 		}
 	}
@@ -140,25 +140,25 @@ func selectionMCTS(node *MCTSNode) *MCTSNode {
 }
 
 func expandMCTS(node *MCTSNode) {
-	actions := getValidActions(node.state)
+	actions := getValidActions(&node.state)
 
 	max := len(*actions)
 
 	for i := 0; i < max; i++ {
 		action := &(*actions)[i]
-		childState := applyAction(*node.state, action)
+		childState := applyAction(node.state, action)
 		node_count++
 
 		if DEBUG {
 			//debug(fmt.Sprintf("expandMCTS child %s", showNode(child)))
 		}
 
-		addToChildren(node, &MCTSNode{node_count, childState, action, 0, 0, node, make([]*MCTSNode, 0)})
+		addToChildren(node, &MCTSNode{node_count, *childState, *action, 0, 0, node, make([]MCTSNode, 0)})
 	}
 }
 
 func addToChildren(node *MCTSNode, newNode *MCTSNode) {
-	node.children = append(node.children, newNode)
+	node.children = append(node.children, *newNode)
 }
 
 func simulateMCTS(node *MCTSNode) (*MCTSNode, Player) {
@@ -170,11 +170,11 @@ func simulateMCTS(node *MCTSNode) (*MCTSNode, Player) {
 	child := node.children[rand.Intn(len(node.children))]
 
 	if DEBUG {
-		debug(fmt.Sprintf("simulateMCTS picked child %s", showNode(child)))
+		debug(fmt.Sprintf("simulateMCTS picked child %s", showNode(&child)))
 		showTree(node, 0)
 	}
 
-	return child, playUntilEnd(*child.state)
+	return &child, playUntilEnd(child.state)
 }
 
 func backPropagateMCTS(node *MCTSNode, winner Player) {
@@ -200,7 +200,7 @@ func showTree(node *MCTSNode, padding int) {
 		debug(strings.Repeat(" ", padding) + showNode(node))
 	}
 	for _, child := range node.children {
-		showTree(child, padding+2)
+		showTree(&child, padding+2)
 	}
 }
 
@@ -226,10 +226,10 @@ func mcts(node *MCTSNode, startTime int64, maxTimeMs int64) *MCTSNode {
 
 	var bestChild *MCTSNode
 	var bestValue int
-	for _, child := range node.children {
-		if bestChild == nil || child.visits > bestValue {
-			bestChild = child
-			bestValue = child.visits
+	for childId := 0; childId < len(node.children); childId++ {
+		if bestChild == nil || node.children[childId].visits > bestValue {
+			bestChild = &node.children[childId]
+			bestValue = node.children[childId].visits
 		}
 	}
 
@@ -328,10 +328,10 @@ func main() {
 
 func runMCTSSearch(state State, startTime int64, maxTime int64) (*Action, float64) {
 	node_count = 0
-	rootNode := MCTSNode{node_count, &state, nil, 0, 0, nil, []*MCTSNode{}}
+	rootNode := MCTSNode{node_count, state, Action{-1, -1}, 0, 0, nil, []MCTSNode{}}
 	node_count++
 	bestNode := mcts(&rootNode, startTime, maxTime)
-	return bestNode.action, float64(bestNode.visits)
+	return &bestNode.action, float64(bestNode.visits)
 }
 
 func debug(v ...interface{}) {
@@ -395,7 +395,7 @@ func applyAction(state State, action *Action) *State {
 	return &state
 }
 
-func applyActionMut(state *State, action *Action) {
+func applyActionMut(state *State, action Action) {
 	state.grid[action.To] = state.grid[action.From]
 	state.grid[action.From] = Empty
 	state.turn = state.turn + 1
@@ -442,7 +442,7 @@ func runMinimaxSearch(state *State, maxDepth int) (Action, float64) {
 
 	for _, action := range *rootActions {
 		stateCopy := *state
-		applyActionMut(&stateCopy, &action)
+		applyActionMut(&stateCopy, action)
 
 		value := -negamax(&stateCopy, maxDepth-1, state.player, math.Inf(-1), math.Inf(1), -1)
 		if value > bestValue {
@@ -557,7 +557,7 @@ func playUntilEnd(s State) Player {
 		}
 
 		randAction := randomAction(*validActions)
-		applyActionMut(currentState, &randAction)
+		applyActionMut(currentState, randAction)
 	}
 }
 
