@@ -142,18 +142,18 @@ func selectionMCTS(node *MCTSNode) *MCTSNode {
 	return selectionMCTS(bestChild)
 }
 
-func expandMCTS(node *MCTSNode) {
-	actions := make([]Action, 0, 128)
-	getValidActions(&node.state, &actions)
+func expandMCTS(node *MCTSNode, actions *[]Action) {
 
-	max := len(actions)
+	getValidActions(&node.state, actions)
+
+	max := len(*actions)
 	node.children = make([]MCTSNode, 0, max)
 
 	for i := 0; i < max; i++ {
-		action := &actions[i]
+		action := (*actions)[i]
 
-		newNode := &MCTSNode{node_count, node.state, *action, 0, 0, node, make([]MCTSNode, 0)}
-		applyActionMut(&newNode.state, *action)
+		newNode := &MCTSNode{node_count, node.state, action, 0, 0, node, make([]MCTSNode, 0)}
+		applyActionMut(&newNode.state, action)
 		node_count++
 
 		if DEBUG {
@@ -214,9 +214,11 @@ func mcts(node *MCTSNode, startTime int64, maxTimeMs int64) *MCTSNode {
 		showTree(node, 0)
 	}
 
+	actions := make([]Action, 0, 128)
+
 	for i := 0; (time.Now().UnixMilli() - startTime) < maxTimeMs; i++ {
 		selectedNode := selectionMCTS(node)
-		expandMCTS(selectedNode)
+		expandMCTS(selectedNode, &actions)
 		child, winner := simulateMCTS(selectedNode)
 		backPropagateMCTS(child, winner)
 
