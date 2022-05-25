@@ -150,9 +150,9 @@ func expandMCTS(node *MCTSNode, actions *[]Action) {
 	node.children = make([]MCTSNode, 0, max)
 
 	for i := 0; i < max; i++ {
-		action := (*actions)[i]
+		action := &(*actions)[i]
 
-		newNode := &MCTSNode{node_count, node.state, action, 0, 0, node, make([]MCTSNode, 0)}
+		newNode := &MCTSNode{node_count, node.state, *action, 0, 0, node, make([]MCTSNode, 0)}
 		applyActionMut(&newNode.state, action)
 		node_count++
 
@@ -164,20 +164,20 @@ func expandMCTS(node *MCTSNode, actions *[]Action) {
 	}
 }
 
-func simulateMCTS(node *MCTSNode) (*MCTSNode, Player) {
+func simulateMCTS(node *MCTSNode, actions *[]Action) (*MCTSNode, Player) {
 	playouts++
 	if len(node.children) == 0 {
 		return node, getOpponent(Player(node.state.player))
 	}
 
-	child := node.children[rand.Intn(len(node.children))]
+	child := &node.children[rand.Intn(len(node.children))]
 
 	if DEBUG {
-		debug(fmt.Sprintf("simulateMCTS picked child %s", showNode(&child)))
+		debug(fmt.Sprintf("simulateMCTS picked child %s", showNode(child)))
 		showTree(node, 0)
 	}
 
-	return &child, playUntilEnd(child.state)
+	return child, playUntilEnd(child.state, actions)
 }
 
 func backPropagateMCTS(node *MCTSNode, winner Player) {
@@ -219,7 +219,7 @@ func mcts(node *MCTSNode, startTime int64, maxTimeMs int64) *MCTSNode {
 	for i := 0; (time.Now().UnixMilli() - startTime) < maxTimeMs; i++ {
 		selectedNode := selectionMCTS(node)
 		expandMCTS(selectedNode, &actions)
-		child, winner := simulateMCTS(selectedNode)
+		child, winner := simulateMCTS(selectedNode, &actions)
 		backPropagateMCTS(child, winner)
 
 		if DEBUG {
@@ -422,7 +422,7 @@ func applyAction(state State, action *Action) *State {
 	return &state
 }
 
-func applyActionMut(state *State, action Action) {
+func applyActionMut(state *State, action *Action) {
 
 	setCell(&state.grid, Empty, action.From)
 	unsetCell(&state.grid, getCellOfPlayer(state.player), action.From)
@@ -475,7 +475,7 @@ func runMinimaxSearch(state *State, maxDepth int) (Action, float64) {
 
 	for _, action := range rootActions {
 		stateCopy := *state
-		applyActionMut(&stateCopy, action)
+		applyActionMut(&stateCopy, &action)
 
 		value := -negamax(&stateCopy, maxDepth-1, state.player, math.Inf(-1), math.Inf(1), -1)
 		if value > bestValue {
@@ -539,10 +539,12 @@ func runMonteCarloSearch(state State, startTime int64, maxTimeMs int64) Action {
 	rootResults := make(map[Action]MonteCarloResult)
 	actionRobin := 0
 
+	actions := make([]Action, 0, 128)
+
 	for (time.Now().UnixMilli() - startTime) < int64(maxTimeMs) {
 		rootAction := rootActions[actionRobin%len(rootActions)]
 		currentState := applyAction(state, &rootAction)
-		winner := playUntilEnd(*currentState)
+		winner := playUntilEnd(*currentState, &actions)
 
 		winScore := 0
 		if winner == state.player {
@@ -579,22 +581,21 @@ func runMonteCarloSearch(state State, startTime int64, maxTimeMs int64) Action {
 	return bestAction
 }
 
-func playUntilEnd(s State) Player {
+func playUntilEnd(s State, validActions *[]Action) Player {
 	currentState := &s
-	validActions := make([]Action, 0, 128)
 
 	for depth := 0; ; depth++ {
 		if depth > 8*8 {
 			panic("depth too high")
 		}
 
-		getValidActions(currentState, &validActions)
-		if len(validActions) == 0 {
+		getValidActions(currentState, validActions)
+		if len(*validActions) == 0 {
 			return getOpponent(currentState.player)
 		}
 
-		randAction := randomAction(validActions)
-		applyActionMut(currentState, randAction)
+		randAction := randomAction(*validActions)
+		applyActionMut(currentState, &randAction)
 	}
 }
 
