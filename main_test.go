@@ -10,15 +10,16 @@ func Test(t *testing.T) {
 	// random seed to current datetime
 	rand.Seed(time.Now().UnixNano())
 
+	const InitialWhiteGrid uint64 = 0b1010101001010101101010100101010110101010010101011010101001010101
+	const InitialBlackGrid uint64 = 0b0101010110101010010101011010101001010101101010100101010110101010
+
 	var startGrid = Grid{
-		White, Black, White, Black, White, Black, White, Black,
-		Black, White, Black, White, Black, White, Black, White,
-		White, Black, White, Black, White, Black, White, Black,
-		Black, White, Black, White, Black, White, Black, White,
-		White, Black, White, Black, White, Black, White, Black,
-		Black, White, Black, White, Black, White, Black, White,
-		White, Black, White, Black, White, Black, White, Black,
-		Black, White, Black, White, Black, White, Black, White,
+		// empty
+		0,
+		// whites
+		InitialWhiteGrid,
+		// blacks
+		InitialBlackGrid,
 	}
 
 	state := State{

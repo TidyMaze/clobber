@@ -19,7 +19,10 @@ var node_count = 0
 
 var playouts = 0
 
-type Grid = [64]Cell
+// grid[0] = empty bitboard
+// grid[1] = white bitboard
+// grid[2] = black bitboard
+type Grid = [3]uint64
 
 type State struct {
 	grid   Grid
@@ -257,6 +260,10 @@ func parsePlayer(c byte) Player {
 	panic("invalid player value " + string(c))
 }
 
+func indexToMask(index int) uint64 {
+	return 1 << uint(index)
+}
+
 func main() {
 	// random seed to current datetime
 	rand.Seed(time.Now().UnixNano())
@@ -286,7 +293,7 @@ func main() {
 			startTime = time.Now().UnixMilli()
 
 			for j := 0; j < boardSize; j++ {
-				grid[i*8+j] = charToCell(line[j])
+				grid[charToCell(line[j])] ^= indexToMask(i*8 + j)
 			}
 		}
 
@@ -347,6 +354,18 @@ func getCellOfPlayer(p Player) Cell {
 	panic("invalid player value " + strconv.FormatBool(bool(p)))
 }
 
+func isCellTakenBy(bitBoard *Grid, c Cell, index int8) bool {
+	return (*bitBoard)[c]&indexToMask(int(index)) != 0
+}
+
+func setCell(bitBoard *Grid, c Cell, index int8) {
+	(*bitBoard)[c] |= indexToMask(int(index))
+}
+
+func unsetCell(bitBoard *Grid, c Cell, index int8) {
+	(*bitBoard)[c] &= ^indexToMask(int(index))
+}
+
 func getValidActions(state *State) *[]Action {
 	currentPlayerCell := getCellOfPlayer(state.player)
 	opponentCell := getCellOfPlayer(getOpponent(state.player))
@@ -358,7 +377,7 @@ func getValidActions(state *State) *[]Action {
 		for j := 0; j < 8; j++ {
 			a.From = int8(i*8 + j)
 
-			if state.grid[a.From] == currentPlayerCell {
+			if isCellTakenBy(&state.grid, currentPlayerCell, a.From) {
 				for id := 0; id < len(directions); id++ {
 					dX := int8(j) + directions[id].x
 					if dX < 0 || dX >= 8 {
@@ -372,7 +391,7 @@ func getValidActions(state *State) *[]Action {
 
 					a.To = dY*8 + dX
 
-					if state.grid[a.To] == opponentCell {
+					if isCellTakenBy(&state.grid, opponentCell, a.To) {
 						actions = append(actions, a)
 					}
 				}
@@ -388,15 +407,26 @@ func inMap(dX int8, dY int8) bool {
 
 func applyAction(state State, action *Action) *State {
 	state.grid[action.To] = state.grid[action.From]
-	state.grid[action.From] = Empty
+
+	setCell(&state.grid, Empty, action.From)
+	unsetCell(&state.grid, getCellOfPlayer(state.player), action.From)
+
+	setCell(&state.grid, getCellOfPlayer(state.player), action.To)
+	unsetCell(&state.grid, getCellOfPlayer(getOpponent(state.player)), action.To)
+
 	state.turn = state.turn + 1
 	state.player = getOpponent(state.player)
 	return &state
 }
 
 func applyActionMut(state *State, action Action) {
-	state.grid[action.To] = state.grid[action.From]
-	state.grid[action.From] = Empty
+
+	setCell(&state.grid, Empty, action.From)
+	unsetCell(&state.grid, getCellOfPlayer(state.player), action.From)
+
+	setCell(&state.grid, getCellOfPlayer(state.player), action.To)
+	unsetCell(&state.grid, getCellOfPlayer(getOpponent(state.player)), action.To)
+
 	state.turn = state.turn + 1
 	state.player = getOpponent(state.player)
 }
