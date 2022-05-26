@@ -77,7 +77,7 @@ var directions = [4]Coord{
 //}
 
 type MCTSNode struct {
-	id       int
+	id       uint32
 	state    State
 	action   Action
 	visits   int
@@ -104,7 +104,7 @@ func showNode(node *MCTSNode) string {
 
 	parentNodeId := "nil"
 	if node.parent != nil {
-		parentNodeId = strconv.Itoa(node.parent.id)
+		parentNodeId = strconv.Itoa(int(node.parent.id))
 	}
 
 	action := "nil"
@@ -155,7 +155,7 @@ func expandMCTS(node *MCTSNode) {
 		action := &(actions)[i]
 
 		newNode := &MCTSNode{
-			nodeCount,
+			uint32(nodeCount),
 			node.state,
 			*action,
 			0,
@@ -346,7 +346,11 @@ func main() {
 
 func runMCTSSearch(state State, startTime int64, maxTime int64) (*Action, float64) {
 	nodeCount = 0
-	rootNode := MCTSNode{nodeCount, state, Action{-1, -1}, 0, 0, nil, []MCTSNode{}}
+	rootNode := MCTSNode{uint32(nodeCount), state, Action{-1, -1}, 0, 0, nil, []MCTSNode{}}
+
+	// panic with rootNode size
+	//panic("rootNode size: " + fmt.Sprint(unsafe.Sizeof(rootNode)))
+
 	nodeCount++
 	bestNode := mcts(&rootNode, startTime, maxTime)
 	return &bestNode.action, float64(bestNode.visits)
