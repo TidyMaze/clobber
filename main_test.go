@@ -19,7 +19,7 @@ func Test(t *testing.T) {
 const InitialWhiteGrid uint64 = 0b1010101001010101101010100101010110101010010101011010101001010101
 const InitialBlackGrid uint64 = 0b0101010110101010010101011010101001010101101010100101010110101010
 
-const MaxIterationsBench = 10000
+const MaxIterationsBench = 5000
 
 var startGrid = Grid{
 	0,
@@ -35,8 +35,8 @@ var state = State{
 
 func findBestActionFromInitialGrid() {
 	startTime := time.Now().UnixMilli()
-	bestAction, bestValue := runMCTSSearch(state, startTime, MaxTimeMsLocal, MaxIterationsBench)
-	debug("best", bestAction, "value", bestValue, "playouts", playouts)
+	_, _ = runMCTSSearch(state, startTime, MaxTimeMsLocal, MaxIterationsBench)
+	// debug("best", bestAction, "value", bestValue, "playouts", playouts)
 }
 
 func BenchmarkFindBestActionFromInitialGrid(b *testing.B) {
