@@ -12,13 +12,14 @@ import (
 
 const DEBUG = false
 
-const MAX_TIME_MS_CG = 135
-const MAX_TIME_MS_LOCAL = 10 * 1000
+const MaxTimeMsCg = 135
+const MaxTimeMsLocal = 10 * 1000
 
-var node_count = 0
+var nodeCount = 0
 
 var playouts = 0
 
+//Grid is a bitboard
 // grid[0] = empty bitboard
 // grid[1] = white bitboard
 // grid[2] = black bitboard
@@ -70,10 +71,10 @@ var directions = [4]Coord{
 	{0, -1},
 }
 
-type MonteCarloResult struct {
-	games int
-	wins  int
-}
+//type MonteCarloResult struct {
+//	games int
+//	wins  int
+//}
 
 type MCTSNode struct {
 	id       int
@@ -154,7 +155,7 @@ func expandMCTS(node *MCTSNode) {
 		action := &(actions)[i]
 
 		newNode := &MCTSNode{
-			node_count,
+			nodeCount,
 			node.state,
 			*action,
 			0,
@@ -163,7 +164,7 @@ func expandMCTS(node *MCTSNode) {
 			make([]MCTSNode, 0),
 		}
 		applyActionMut(&newNode.state, action)
-		node_count++
+		nodeCount++
 
 		if DEBUG {
 			//debug(fmt.Sprintf("expandMCTS child %s", showNode(child)))
@@ -176,7 +177,7 @@ func expandMCTS(node *MCTSNode) {
 func simulateMCTS(node *MCTSNode) (*MCTSNode, Player) {
 	playouts++
 	if len(node.children) == 0 {
-		return node, getOpponent(Player(node.state.player))
+		return node, getOpponent(node.state.player)
 	}
 
 	child := node.children[rand.Intn(len(node.children))]
@@ -280,11 +281,11 @@ func main() {
 
 	// boardSize: height and width of the board
 	var boardSize int
-	fmt.Scan(&boardSize)
+	_, _ = fmt.Scan(&boardSize)
 
 	// color: current color of your pieces ("w" or "b")
 	var color string
-	fmt.Scan(&color)
+	_, _ = fmt.Scan(&color)
 
 	myPlayer := parsePlayer(color[0])
 
@@ -299,7 +300,7 @@ func main() {
 		for i := 0; i < boardSize; i++ {
 			// line: horizontal row
 			var line string
-			fmt.Scan(&line)
+			_, _ = fmt.Scan(&line)
 			startTime = time.Now().UnixMilli()
 
 			for j := 0; j < boardSize; j++ {
@@ -311,7 +312,7 @@ func main() {
 
 		// lastAction: last action made by the opponent ("null" if it's the first turn)
 		var lastAction string
-		fmt.Scan(&lastAction)
+		_, _ = fmt.Scan(&lastAction)
 
 		if lastAction == "null" {
 			turn = 1
@@ -325,7 +326,7 @@ func main() {
 
 		// actionsCount: number of legal actions
 		var actionsCount int
-		fmt.Scan(&actionsCount)
+		_, _ = fmt.Scan(&actionsCount)
 
 		validActions := make([]Action, 0, 128)
 		getValidActions(&state, &validActions)
@@ -335,7 +336,7 @@ func main() {
 			panic("invalid number of actions: " + strconv.Itoa(len(validActions)) + " != " + strconv.Itoa(actionsCount))
 		}
 
-		bestAction, bestValue := runMCTSSearch(state, startTime, MAX_TIME_MS_CG)
+		bestAction, bestValue := runMCTSSearch(state, startTime, MaxTimeMsCg)
 		debug("bestAction", bestAction, "bestValue", bestValue, "after", playouts, "playouts")
 
 		fmt.Println(fmt.Sprintf("%s %.2f", bestAction, bestValue))
@@ -344,15 +345,15 @@ func main() {
 }
 
 func runMCTSSearch(state State, startTime int64, maxTime int64) (*Action, float64) {
-	node_count = 0
-	rootNode := MCTSNode{node_count, state, Action{-1, -1}, 0, 0, nil, []MCTSNode{}}
-	node_count++
+	nodeCount = 0
+	rootNode := MCTSNode{nodeCount, state, Action{-1, -1}, 0, 0, nil, []MCTSNode{}}
+	nodeCount++
 	bestNode := mcts(&rootNode, startTime, maxTime)
 	return &bestNode.action, float64(bestNode.visits)
 }
 
 func debug(v ...interface{}) {
-	fmt.Fprintln(os.Stderr, v...)
+	_, _ = fmt.Fprintln(os.Stderr, v...)
 }
 
 func getCellOfPlayer(p Player) Cell {
@@ -411,23 +412,19 @@ func getValidActions(state *State, actions *[]Action) {
 	}
 }
 
-func inMap(dX int8, dY int8) bool {
-	return dX >= 0 && dX < 8 && dY >= 0 && dY < 8
-}
-
-func applyAction(state State, action *Action) *State {
-	state.grid[action.To] = state.grid[action.From]
-
-	setCell(&state.grid, Empty, action.From)
-	unsetCell(&state.grid, getCellOfPlayer(state.player), action.From)
-
-	setCell(&state.grid, getCellOfPlayer(state.player), action.To)
-	unsetCell(&state.grid, getCellOfPlayer(getOpponent(state.player)), action.To)
-
-	state.turn = state.turn + 1
-	state.player = getOpponent(state.player)
-	return &state
-}
+//func applyAction(state State, action *Action) *State {
+//	state.grid[action.To] = state.grid[action.From]
+//
+//	setCell(&state.grid, Empty, action.From)
+//	unsetCell(&state.grid, getCellOfPlayer(state.player), action.From)
+//
+//	setCell(&state.grid, getCellOfPlayer(state.player), action.To)
+//	unsetCell(&state.grid, getCellOfPlayer(getOpponent(state.player)), action.To)
+//
+//	state.turn = state.turn + 1
+//	state.player = getOpponent(state.player)
+//	return &state
+//}
 
 func applyActionMut(state *State, action *Action) {
 
@@ -451,140 +448,140 @@ func getOpponent(p Player) Player {
 	panic("invalid player value " + strconv.FormatBool(bool(p)))
 }
 
-func stateEval(state *State, myPlayer Player, nextActions *[]Action) float64 {
-	actionsCount := len(*nextActions)
+//func stateEval(state *State, myPlayer Player, nextActions *[]Action) float64 {
+//	actionsCount := len(*nextActions)
+//
+//	eval := math.Inf(-1)
+//
+//	if actionsCount == 0 && myPlayer == state.player {
+//		eval = -1000000.0 + float64(state.turn)
+//	} else if actionsCount == 0 && myPlayer != state.player {
+//		eval = 1000000.0 - float64(state.turn)
+//	} else if myPlayer == state.player {
+//		eval = float64(actionsCount)*1000 + float64(state.turn)
+//	} else if myPlayer != state.player {
+//		eval = float64(actionsCount)*-1000 - float64(state.turn)
+//	}
+//
+//	return eval
+//}
 
-	eval := math.Inf(-1)
+//func runMinimaxSearch(state *State, maxDepth int) (Action, float64) {
+//	rootActions := make([]Action, 0, 128)
+//	getValidActions(state, &rootActions)
+//
+//	var bestAction Action = Action{From: -1, To: -1}
+//	bestValue := math.Inf(-1)
+//
+//	if DEBUG {
+//		debug("Taking max", maxDepth)
+//	}
+//
+//	for _, action := range rootActions {
+//		stateCopy := *state
+//		applyActionMut(&stateCopy, &action)
+//
+//		value := -negamax(&stateCopy, maxDepth-1, state.player, math.Inf(-1), math.Inf(1), -1)
+//		if value > bestValue {
+//			bestValue = value
+//			bestAction = action
+//			//if DEBUG {
+//			debug("New best GLOBAL value", bestValue, "for action", action)
+//			//}
+//		}
+//	}
+//
+//	return bestAction, bestValue
+//}
 
-	if actionsCount == 0 && myPlayer == state.player {
-		eval = -1000000.0 + float64(state.turn)
-	} else if actionsCount == 0 && myPlayer != state.player {
-		eval = 1000000.0 - float64(state.turn)
-	} else if myPlayer == state.player {
-		eval = float64(actionsCount)*1000 + float64(state.turn)
-	} else if myPlayer != state.player {
-		eval = float64(actionsCount)*-1000 - float64(state.turn)
-	}
+//func negamax(state *State, maxDepth int, myPlayer Player, alpha float64, beta float64, color int) float64 {
+//	nextActions := make([]Action, 0, 128)
+//	getValidActions(state, &nextActions)
+//
+//	if maxDepth == 0 {
+//		eval := stateEval(state, myPlayer, &nextActions)
+//		if DEBUG {
+//			//debug("Reaching max depth", maxDepth, "eval", eval)
+//		}
+//		return float64(color) * eval
+//	}
+//
+//	if len(nextActions) == 0 {
+//		eval := stateEval(state, myPlayer, &nextActions)
+//		if DEBUG {
+//			debug("Reaching leaf node", maxDepth, "eval", eval)
+//		}
+//		return float64(color) * eval
+//	}
+//
+//	whoPlayed := getOpponent(state.player)
+//
+//	if DEBUG {
+//		debug("Next player", state.player, "who played", whoPlayed, "Depth", maxDepth)
+//	}
+//	value := math.Inf(-1)
+//	for iNextAction := 0; iNextAction < len(nextActions); iNextAction++ {
+//		nextAction := &nextActions[iNextAction]
+//		nextState := applyAction(*state, nextAction)
+//		value = math.Max(value, -negamax(nextState, maxDepth-1, myPlayer, -beta, -alpha, -color))
+//
+//		alpha = math.Max(alpha, value)
+//
+//		if alpha >= beta {
+//			if DEBUG {
+//				debug("Cutoff", value, "for action", nextAction)
+//			}
+//			break
+//		}
+//	}
+//	return value
+//}
 
-	return eval
-}
-
-func runMinimaxSearch(state *State, maxDepth int) (Action, float64) {
-	rootActions := make([]Action, 0, 128)
-	getValidActions(state, &rootActions)
-
-	var bestAction Action = Action{From: -1, To: -1}
-	bestValue := math.Inf(-1)
-
-	if DEBUG {
-		debug("Taking max", maxDepth)
-	}
-
-	for _, action := range rootActions {
-		stateCopy := *state
-		applyActionMut(&stateCopy, &action)
-
-		value := -negamax(&stateCopy, maxDepth-1, state.player, math.Inf(-1), math.Inf(1), -1)
-		if value > bestValue {
-			bestValue = value
-			bestAction = action
-			//if DEBUG {
-			debug("New best GLOBAL value", bestValue, "for action", action)
-			//}
-		}
-	}
-
-	return bestAction, bestValue
-}
-
-func negamax(state *State, maxDepth int, myPlayer Player, alpha float64, beta float64, color int) float64 {
-	nextActions := make([]Action, 0, 128)
-	getValidActions(state, &nextActions)
-
-	if maxDepth == 0 {
-		eval := stateEval(state, myPlayer, &nextActions)
-		if DEBUG {
-			//debug("Reaching max depth", maxDepth, "eval", eval)
-		}
-		return float64(color) * eval
-	}
-
-	if len(nextActions) == 0 {
-		eval := stateEval(state, myPlayer, &nextActions)
-		if DEBUG {
-			debug("Reaching leaf node", maxDepth, "eval", eval)
-		}
-		return float64(color) * eval
-	}
-
-	whoPlayed := getOpponent(state.player)
-
-	if DEBUG {
-		debug("Next player", state.player, "who played", whoPlayed, "Depth", maxDepth)
-	}
-	value := math.Inf(-1)
-	for iNextAction := 0; iNextAction < len(nextActions); iNextAction++ {
-		nextAction := &nextActions[iNextAction]
-		nextState := applyAction(*state, nextAction)
-		value = math.Max(value, -negamax(nextState, maxDepth-1, myPlayer, -beta, -alpha, -color))
-
-		alpha = math.Max(alpha, value)
-
-		if alpha >= beta {
-			if DEBUG {
-				debug("Cutoff", value, "for action", nextAction)
-			}
-			break
-		}
-	}
-	return value
-}
-
-func runMonteCarloSearch(state State, startTime int64, maxTimeMs int64) Action {
-	rootActions := make([]Action, 0, 128)
-	getValidActions(&state, &rootActions)
-	rootResults := make(map[Action]MonteCarloResult)
-	actionRobin := 0
-
-	for (time.Now().UnixMilli() - startTime) < int64(maxTimeMs) {
-		rootAction := rootActions[actionRobin%len(rootActions)]
-		currentState := applyAction(state, &rootAction)
-		winner := playUntilEnd(*currentState)
-
-		winScore := 0
-		if winner == state.player {
-			winScore = 1
-		}
-
-		existing, ok := rootResults[rootAction]
-		if !ok {
-			rootResults[rootAction] = MonteCarloResult{
-				wins:  winScore,
-				games: 1,
-			}
-		} else {
-			existing.wins += winScore
-			existing.games++
-			rootResults[rootAction] = existing
-		}
-
-		actionRobin++
-	}
-
-	// find the action with the highest win rate
-	var bestAction Action
-	var bestRate = float64(-1)
-	for _, rootAction := range rootActions {
-		rate := float64(rootResults[rootAction].wins) / float64(rootResults[rootAction].games)
-		if rate > bestRate {
-			bestRate = rate
-			bestAction = rootAction
-
-			debug("bestAction", bestAction, "bestRate", fmt.Sprintf("%.2f", bestRate), "(", rootResults[bestAction].wins, "/", rootResults[bestAction].games, ")")
-		}
-	}
-	return bestAction
-}
+//func runMonteCarloSearch(state State, startTime int64, maxTimeMs int64) Action {
+//	rootActions := make([]Action, 0, 128)
+//	getValidActions(&state, &rootActions)
+//	rootResults := make(map[Action]MonteCarloResult)
+//	actionRobin := 0
+//
+//	for (time.Now().UnixMilli() - startTime) < int64(maxTimeMs) {
+//		rootAction := rootActions[actionRobin%len(rootActions)]
+//		currentState := applyAction(state, &rootAction)
+//		winner := playUntilEnd(*currentState)
+//
+//		winScore := 0
+//		if winner == state.player {
+//			winScore = 1
+//		}
+//
+//		existing, ok := rootResults[rootAction]
+//		if !ok {
+//			rootResults[rootAction] = MonteCarloResult{
+//				wins:  winScore,
+//				games: 1,
+//			}
+//		} else {
+//			existing.wins += winScore
+//			existing.games++
+//			rootResults[rootAction] = existing
+//		}
+//
+//		actionRobin++
+//	}
+//
+//	// find the action with the highest win rate
+//	var bestAction Action
+//	var bestRate = float64(-1)
+//	for _, rootAction := range rootActions {
+//		rate := float64(rootResults[rootAction].wins) / float64(rootResults[rootAction].games)
+//		if rate > bestRate {
+//			bestRate = rate
+//			bestAction = rootAction
+//
+//			debug("bestAction", bestAction, "bestRate", fmt.Sprintf("%.2f", bestRate), "(", rootResults[bestAction].wins, "/", rootResults[bestAction].games, ")")
+//		}
+//	}
+//	return bestAction
+//}
 
 func playUntilEnd(s State) Player {
 	currentState := &s
