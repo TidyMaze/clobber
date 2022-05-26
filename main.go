@@ -217,14 +217,14 @@ func showTree(node *MCTSNode, padding int) {
 	}
 }
 
-func mcts(node *MCTSNode, startTime int64, maxTimeMs int64) *MCTSNode {
+func mcts(node *MCTSNode, startTime int64, maxTimeMs int64, maxIterations int) *MCTSNode {
 	playouts = 0
 	if DEBUG {
 		debug("initial node", showNode(node))
 		showTree(node, 0)
 	}
 
-	for i := 0; (time.Now().UnixMilli() - startTime) < maxTimeMs; i++ {
+	for i := 0; i < maxIterations && (time.Now().UnixMilli()-startTime) < maxTimeMs; i++ {
 		selectedNode := selectionMCTS(node)
 		expandMCTS(selectedNode)
 		child, winner := simulateMCTS(selectedNode)
@@ -336,7 +336,7 @@ func main() {
 			panic("invalid number of actions: " + strconv.Itoa(len(validActions)) + " != " + strconv.Itoa(actionsCount))
 		}
 
-		bestAction, bestValue := runMCTSSearch(state, startTime, MaxTimeMsCg)
+		bestAction, bestValue := runMCTSSearch(state, startTime, MaxTimeMsCg, 10000000)
 		debug("bestAction", bestAction, "bestValue", bestValue, "after", playouts, "playouts")
 
 		fmt.Printf("%s %.2f\n", bestAction, bestValue)
@@ -344,7 +344,7 @@ func main() {
 	}
 }
 
-func runMCTSSearch(state State, startTime int64, maxTime int64) (*Action, float64) {
+func runMCTSSearch(state State, startTime int64, maxTime int64, maxIterations int) (*Action, float64) {
 	nodeCount = 0
 	rootNode := MCTSNode{uint32(nodeCount), state, Action{-1, -1}, 0, 0, nil, []MCTSNode{}}
 
@@ -352,7 +352,7 @@ func runMCTSSearch(state State, startTime int64, maxTime int64) (*Action, float6
 	//panic("rootNode size: " + fmt.Sprint(unsafe.Sizeof(rootNode)))
 
 	nodeCount++
-	bestNode := mcts(&rootNode, startTime, maxTime)
+	bestNode := mcts(&rootNode, startTime, maxTime, maxIterations)
 	return &bestNode.action, float64(bestNode.visits)
 }
 
