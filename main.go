@@ -166,9 +166,9 @@ func expandMCTS(node *MCTSNode) {
 		applyActionMut(&newNode.state, action)
 		nodeCount++
 
-		if DEBUG {
-			//debug(fmt.Sprintf("expandMCTS child %s", showNode(child)))
-		}
+		// if DEBUG {
+		//debug(fmt.Sprintf("expandMCTS child %s", showNode(child)))
+		// }
 
 		node.children = append(node.children, *newNode)
 	}
@@ -339,7 +339,7 @@ func main() {
 		bestAction, bestValue := runMCTSSearch(state, startTime, MaxTimeMsCg)
 		debug("bestAction", bestAction, "bestValue", bestValue, "after", playouts, "playouts")
 
-		fmt.Println(fmt.Sprintf("%s %.2f", bestAction, bestValue))
+		fmt.Printf("%s %.2f\n", bestAction, bestValue)
 		turn++
 	}
 }
