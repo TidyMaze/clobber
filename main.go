@@ -602,13 +602,21 @@ func playUntilEnd(s State) Player {
 			return getOpponent(currentState.player)
 		}
 
-		randAction := randomAction(validActions)
-		applyActionMut(currentState, &randAction)
+		randAction := randomAction(&validActions)
+		applyActionMut(currentState, randAction)
 	}
 }
 
-func randomAction(validActions []Action) Action {
-	return validActions[rand.Intn(len(validActions))]
+func getSingleValidAction(state *State, actions *[]Action) *Action {
+	getValidActions(state, actions)
+	if len(*actions) == 0 {
+		return nil
+	}
+	return randomAction(actions)
+}
+
+func randomAction(validActions *[]Action) *Action {
+	return &(*validActions)[rand.Intn(len(*validActions))]
 }
 
 func displayCoord(c int8) string {
