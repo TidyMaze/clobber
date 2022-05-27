@@ -20,14 +20,6 @@ var nodeCount = 0
 
 var playouts = 0
 
-var masksCache = make(map[int8]uint64)
-
-func initMaskCache() {
-	for i := int8(0); i < 64; i++ {
-		masksCache[i] = 1 << uint(i)
-	}
-}
-
 //Grid is a bitboard
 // grid[0] = empty bitboard
 // grid[1] = white bitboard
@@ -282,12 +274,10 @@ func parsePlayer(c byte) Player {
 }
 
 func indexToMask(index int8) uint64 {
-	return masksCache[index]
+	return 1 << uint(index)
 }
 
 func main() {
-	initMaskCache()
-
 	// random seed to current datetime
 	rand.Seed(time.Now().UnixNano())
 
