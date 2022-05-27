@@ -12,7 +12,8 @@
         {
             "label": "pprof mem",
             "type": "shell",
-            "command": "go tool pprof -http=:8080 mem.prof"
+            "command": "go tool pprof -http=:8080 mem.prof",
+            "problemMatcher": []
         },
         {
             "label": "run test with profile",
