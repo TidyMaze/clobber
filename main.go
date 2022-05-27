@@ -396,7 +396,7 @@ func getValidActions(state *State, actions *[]Action) {
 			a.From = int8(i*8 + j)
 
 			if isCellTakenBy(&state.grid, currentPlayerCell, a.From) {
-				for id := 0; id < len(directions); id++ {
+				for id := 0; id < 4; id++ {
 					dX := int8(j) + directions[id].x
 					if dX < 0 || dX >= 8 {
 						continue
