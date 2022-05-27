@@ -6,7 +6,8 @@
         {
             "label": "pprof cpu",
             "type": "shell",
-            "command": "go tool pprof -http=:8080 cpu.prof"
+            "command": "go tool pprof -http=:8080 cpu.prof",
+            "problemMatcher": []
         },
         {
             "label": "pprof mem",
@@ -16,7 +17,7 @@
         {
             "label": "run test with profile",
             "type": "shell",
-            "command": "go test -cpuprofile cpu.prof -memprofile mem.prof -bench .",
+            "command": "go test -cpuprofile cpu.prof -memprofile mem.prof -bench . -benchtime=10s",
             "problemMatcher": []
         }
     ]
