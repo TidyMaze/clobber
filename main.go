@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"unsafe"
+	// "unsafe"
 )
 
 const DEBUG = false
@@ -350,7 +350,7 @@ func runMCTSSearch(state State, startTime int64, maxTime int64, maxIterations in
 	rootNode := MCTSNode{uint32(nodeCount), state, Action{-1, -1}, 0, 0, nil, []MCTSNode{}}
 
 	// panic with rootNode size
-	panic("rootNode size: " + fmt.Sprint(unsafe.Sizeof(rootNode)))
+	// panic("rootNode size: " + fmt.Sprint(unsafe.Sizeof(rootNode)))
 
 	nodeCount++
 	bestNode := mcts(&rootNode, startTime, maxTime, maxIterations)

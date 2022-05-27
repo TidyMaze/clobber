@@ -1,2 +1,4 @@
 .idea
 /clobber.iml
+clobber.test
+cpu.prof
