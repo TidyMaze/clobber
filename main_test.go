@@ -15,13 +15,32 @@ import (
 // 	findBestActionFromInitialGrid(1000000)
 // }
 
-const InitialWhiteGrid uint64 = 0b1010101001010101101010100101010110101010010101011010101001010101
-const InitialBlackGrid uint64 = 0b0101010110101010010101011010101001010101101010100101010110101010
+var InitialWhiteGrid [64]bool = [64]bool{
+	false, true, false, true, false, true, false, true,
+	true, false, true, false, true, false, true, false,
+	false, true, false, true, false, true, false, true,
+	true, false, true, false, true, false, true, false,
+	false, true, false, true, false, true, false, true,
+	true, false, true, false, true, false, true, false,
+	false, true, false, true, false, true, false, true,
+	true, false, true, false, true, false, true, false,
+}
+
+var InitialBlackGrid [64]bool = [64]bool{
+	true, false, true, false, true, false, true, false,
+	false, true, false, true, false, true, false, true,
+	true, false, true, false, true, false, true, false,
+	false, true, false, true, false, true, false, true,
+	true, false, true, false, true, false, true, false,
+	false, true, false, true, false, true, false, true,
+	true, false, true, false, true, false, true, false,
+	false, true, false, true, false, true, false, true,
+}
 
 const MaxIterationsBench = 5000
 
 var startGrid = Grid{
-	0,
+	[64]bool{},
 	InitialWhiteGrid,
 	InitialBlackGrid,
 }

@@ -23,7 +23,7 @@ var playouts = 0
 // grid[0] = empty bitboard
 // grid[1] = white bitboard
 // grid[2] = black bitboard
-type Grid = [3]uint64
+type Grid = [3][64]bool
 
 type State struct {
 	grid   Grid
@@ -304,7 +304,7 @@ func main() {
 			startTime = time.Now().UnixMilli()
 
 			for j := 0; j < boardSize; j++ {
-				grid[charToCell(line[j])] ^= indexToMask(i*8 + j)
+				grid[charToCell(line[j])][i*8+j] = true
 			}
 		}
 
@@ -371,15 +371,15 @@ func getCellOfPlayer(p Player) Cell {
 }
 
 func isCellTakenBy(bitBoard *Grid, c Cell, index int8) bool {
-	return (*bitBoard)[c]&indexToMask(int(index)) != 0
+	return (*bitBoard)[c][index]
 }
 
 func setCell(bitBoard *Grid, c Cell, index int8) {
-	(*bitBoard)[c] |= indexToMask(int(index))
+	(*bitBoard)[c][index] = true
 }
 
 func unsetCell(bitBoard *Grid, c Cell, index int8) {
-	(*bitBoard)[c] &= ^indexToMask(int(index))
+	(*bitBoard)[c][index] = false
 }
 
 func getValidActions(state *State, actions *[]Action) {
