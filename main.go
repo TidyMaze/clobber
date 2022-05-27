@@ -390,19 +390,19 @@ func getValidActions(state *State, actions *[]Action) {
 
 	*actions = (*actions)[:0]
 
-	for i := 0; i < 8; i++ {
-		for j := 0; j < 8; j++ {
+	for i := int8(0); i < 8; i++ {
+		for j := int8(0); j < 8; j++ {
 
-			from := int8(i*8 + j)
+			from := i*8 + j
 
 			if isCellTakenBy(&state.grid, currentPlayerCell, from) {
 				for id := 0; id < 4; id++ {
-					dX := int8(j) + directions[id].x
+					dX := j + directions[id].x
 					if dX < 0 || dX >= 8 {
 						continue
 					}
 
-					dY := int8(i) + directions[id].y
+					dY := i + directions[id].y
 					if dY < 0 || dY >= 8 {
 						continue
 					}
