@@ -7,13 +7,19 @@
             "label": "pprof cpu",
             "type": "shell",
             "command": "go tool pprof -http=:8080 cpu.prof",
-            "problemMatcher": []
+            "problemMatcher": [],
+            "dependsOn": [
+                "run test with profile"
+            ]
         },
         {
             "label": "pprof mem",
             "type": "shell",
             "command": "go tool pprof -http=:8080 mem.prof",
-            "problemMatcher": []
+            "problemMatcher": [],
+            "dependsOn": [
+                "run test with profile"
+            ]
         },
         {
             "label": "run test with profile",
