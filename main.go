@@ -597,12 +597,11 @@ func playUntilEnd(s State) Player {
 			panic("depth too high")
 		}
 
-		getValidActions(currentState, &validActions)
-		if len(validActions) == 0 {
+		randAction := getSingleValidAction(currentState, &validActions)
+		if randAction == nil {
 			return getOpponent(currentState.player)
 		}
 
-		randAction := randomAction(&validActions)
 		applyActionMut(currentState, randAction)
 	}
 }
