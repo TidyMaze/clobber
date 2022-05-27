@@ -1,20 +1,19 @@
 package main
 
 import (
-	"math/rand"
 	"testing"
 	"time"
 )
 
-func Test(t *testing.T) {
-	// random seed to current datetime
-	rand.Seed(time.Now().UnixNano())
+// func Test(t *testing.T) {
+// 	// random seed to current datetime
+// 	rand.Seed(time.Now().UnixNano())
 
-	// empty
-	// whites
-	// blacks
-	findBestActionFromInitialGrid(1000000)
-}
+// 	// empty
+// 	// whites
+// 	// blacks
+// 	findBestActionFromInitialGrid(1000000)
+// }
 
 const InitialWhiteGrid uint64 = 0b1010101001010101101010100101010110101010010101011010101001010101
 const InitialBlackGrid uint64 = 0b0101010110101010010101011010101001010101101010100101010110101010
