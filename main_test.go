@@ -1,20 +1,19 @@
 package main
 
 import (
-	"math/rand"
 	"testing"
 	"time"
 )
 
-func Test(t *testing.T) {
-	// random seed to current datetime
-	rand.Seed(time.Now().UnixNano())
+// func Test(t *testing.T) {
+// 	// random seed to current datetime
+// 	rand.Seed(time.Now().UnixNano())
 
-	// empty
-	// whites
-	// blacks
-	findBestActionFromInitialGrid(1000000)
-}
+// 	// empty
+// 	// whites
+// 	// blacks
+// 	findBestActionFromInitialGrid(1000000)
+// }
 
 const InitialWhiteGrid uint64 = 0b1010101001010101101010100101010110101010010101011010101001010101
 const InitialBlackGrid uint64 = 0b0101010110101010010101011010101001010101101010100101010110101010
@@ -39,8 +38,8 @@ func findBestActionFromInitialGrid(maxIterations int) {
 	// debug("best", bestAction, "value", bestValue, "playouts", playouts)
 }
 
-// func BenchmarkFindBestActionFromInitialGrid(b *testing.B) {
-// 	for i := 0; i < b.N; i++ {
-// 		findBestActionFromInitialGrid(MaxIterationsBench)
-// 	}
-// }
+func BenchmarkFindBestActionFromInitialGrid(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		findBestActionFromInitialGrid(MaxIterationsBench)
+	}
+}
