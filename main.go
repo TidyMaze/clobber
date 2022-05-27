@@ -20,6 +20,14 @@ var nodeCount = 0
 
 var playouts = 0
 
+var masksCache = make(map[int8]uint64)
+
+func initMaskCache() {
+	for i := int8(0); i < 64; i++ {
+		masksCache[i] = 1 << uint(i)
+	}
+}
+
 //Grid is a bitboard
 // grid[0] = empty bitboard
 // grid[1] = white bitboard
@@ -273,16 +281,18 @@ func parsePlayer(c byte) Player {
 	panic("invalid player value " + string(c))
 }
 
-func indexToMask(index int) uint64 {
-	return 1 << uint(index)
+func indexToMask(index int8) uint64 {
+	return masksCache[index]
 }
 
 func main() {
+	initMaskCache()
+
 	// random seed to current datetime
 	rand.Seed(time.Now().UnixNano())
 
 	// boardSize: height and width of the board
-	var boardSize int
+	var boardSize int8
 	_, _ = fmt.Scan(&boardSize)
 
 	// color: current color of your pieces ("w" or "b")
@@ -299,14 +309,14 @@ func main() {
 		grid := Grid{}
 
 		startTime := int64(0)
-		for i := 0; i < boardSize; i++ {
+		for i := int8(0); i < boardSize; i++ {
 			// line: horizontal row
 			var line string
 			_, _ = fmt.Scan(&line)
 			startTime = time.Now().UnixMilli()
 
-			for j := 0; j < boardSize; j++ {
-				grid[charToCell(line[j])] ^= indexToMask(i*8 + j)
+			for j := int8(0); j < boardSize; j++ {
+				grid[charToCell(line[j])] ^= indexToMask(i*int8(8) + j)
 			}
 		}
 
@@ -373,15 +383,15 @@ func getCellOfPlayer(p Player) Cell {
 }
 
 func isCellTakenBy(bitBoard *Grid, c Cell, index int8) bool {
-	return (*bitBoard)[c]&indexToMask(int(index)) != 0
+	return (*bitBoard)[c]&indexToMask(index) != 0
 }
 
 func setCell(bitBoard *Grid, c Cell, index int8) {
-	(*bitBoard)[c] |= indexToMask(int(index))
+	(*bitBoard)[c] |= indexToMask(index)
 }
 
 func unsetCell(bitBoard *Grid, c Cell, index int8) {
-	(*bitBoard)[c] &= ^indexToMask(int(index))
+	(*bitBoard)[c] &= ^indexToMask(index)
 }
 
 func getValidActions(state *State, actions *[]Action) {
