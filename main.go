@@ -20,6 +20,8 @@ var nodeCount = 0
 
 var playouts = 0
 
+var neighbors = [64][]int8{}
+
 //Grid is a bitboard
 // grid[0] = empty bitboard
 // grid[1] = white bitboard
@@ -76,6 +78,28 @@ var directions = [4]Coord{
 //	games int
 //	wins  int
 //}
+
+func initNeighborsCache() {
+	for index := int8(0); index < 64; index++ {
+		i := index / 8
+		j := index % 8
+
+		for id := 0; id < 4; id++ {
+			dX := j + directions[id].x
+			if dX < 0 || dX >= 8 {
+				continue
+			}
+
+			dY := i + directions[id].y
+			if dY < 0 || dY >= 8 {
+				continue
+			}
+
+			to := dY*8 + dX
+			neighbors[index] = append(neighbors[index], to)
+		}
+	}
+}
 
 type MCTSNode struct {
 	id       uint32
@@ -392,22 +416,10 @@ func getValidActions(state *State, actions *[]Action) {
 
 	for from := int8(0); from < 64; from++ {
 		if isCellTakenBy(&state.grid, currentPlayerCell, from) {
-			i := from / 8
-			j := from % 8
-
-			for id := 0; id < 4; id++ {
-				dX := j + directions[id].x
-				if dX < 0 || dX >= 8 {
-					continue
-				}
-
-				dY := i + directions[id].y
-				if dY < 0 || dY >= 8 {
-					continue
-				}
-
-				to := dY*8 + dX
-
+			validNeighbors := &neighbors[from]
+			neighborsCount := len(*validNeighbors)
+			for idNeighbor := 0; idNeighbor < neighborsCount; idNeighbor++ {
+				to := (*validNeighbors)[idNeighbor]
 				if isCellTakenBy(&state.grid, opponentCell, to) {
 					*actions = append(*actions, Action{from, to})
 				}
