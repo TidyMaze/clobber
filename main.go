@@ -430,10 +430,10 @@ func getValidActions(state *State, actions *[]Action) {
 
 	for from := int8(0); from < 64; from++ {
 		if isCellTakenBy(&state.grid, currentPlayerCell, from) {
-			validNeighbors := &neighbors[from]
-			neighborsCount := len(*validNeighbors)
+			validNeighbors := neighbors[from]
+			neighborsCount := len(validNeighbors)
 			for idNeighbor := 0; idNeighbor < neighborsCount; idNeighbor++ {
-				to := (*validNeighbors)[idNeighbor]
+				to := (validNeighbors)[idNeighbor]
 				if isCellTakenBy(&state.grid, opponentCell, to) {
 					*actions = append(*actions, Action{from, to})
 				}
