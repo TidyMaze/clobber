@@ -80,6 +80,7 @@ var directions = [4]Coord{
 //}
 
 func initNeighborsCache() {
+	neighbors = [64][]int8{}
 	for index := int8(0); index < 64; index++ {
 		i := index / 8
 		j := index % 8
@@ -99,6 +100,8 @@ func initNeighborsCache() {
 			neighbors[index] = append(neighbors[index], to)
 		}
 	}
+
+	// fmt.Fprintf(os.Stderr, "neighbors: %v\n", neighbors)
 }
 
 type MCTSNode struct {
