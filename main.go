@@ -305,6 +305,8 @@ func indexToMask(index int8) uint64 {
 }
 
 func main() {
+	initNeighborsCache()
+
 	// random seed to current datetime
 	rand.Seed(time.Now().UnixNano())
 
