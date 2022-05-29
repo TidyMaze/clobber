@@ -22,6 +22,8 @@ var playouts = 0
 
 var neighbors = [64][]int8{}
 
+var indexMaskCache = [64]uint64{}
+
 //Grid is a bitboard
 // grid[0] = empty bitboard
 // grid[1] = white bitboard
@@ -78,6 +80,12 @@ var directions = [4]Coord{
 //	games int
 //	wins  int
 //}
+
+func initMaskCache() {
+	for index := int8(0); index < 64; index++ {
+		indexMaskCache[index] = 1 << uint(index)
+	}
+}
 
 func initNeighborsCache() {
 	neighbors = [64][]int8{}
@@ -300,11 +308,12 @@ func parsePlayer(c byte) Player {
 	panic("invalid player value " + string(c))
 }
 
-func indexToMask(index int8) uint64 {
-	return 1 << uint(index)
-}
+// func indexToMask(index int8) uint64 {
+// return 1 << uint(index)
+// }
 
 func main() {
+	initMaskCache()
 	initNeighborsCache()
 
 	// random seed to current datetime
@@ -335,7 +344,7 @@ func main() {
 			startTime = time.Now().UnixMilli()
 
 			for j := int8(0); j < boardSize; j++ {
-				grid[charToCell(line[j])] ^= indexToMask(i*int8(8) + j)
+				grid[charToCell(line[j])] ^= indexMaskCache[i*int8(8)+j]
 			}
 		}
 
@@ -402,15 +411,15 @@ func getCellOfPlayer(p Player) Cell {
 }
 
 func isCellTakenBy(bitBoard *Grid, c Cell, index int8) bool {
-	return (*bitBoard)[c]&indexToMask(index) != 0
+	return (*bitBoard)[c]&indexMaskCache[index] != 0
 }
 
 func setCell(bitBoard *Grid, c Cell, index int8) {
-	(*bitBoard)[c] |= indexToMask(index)
+	(*bitBoard)[c] |= indexMaskCache[index]
 }
 
 func unsetCell(bitBoard *Grid, c Cell, index int8) {
-	(*bitBoard)[c] &= ^indexToMask(index)
+	(*bitBoard)[c] &= ^indexMaskCache[index]
 }
 
 func getValidActions(state *State, actions *[]Action) {

@@ -40,6 +40,7 @@ func findBestActionFromInitialGrid(maxIterations int) {
 
 func BenchmarkFindBestActionFromInitialGrid(b *testing.B) {
 	initNeighborsCache()
+	initMaskCache()
 	for i := 0; i < b.N; i++ {
 		findBestActionFromInitialGrid(MaxIterationsBench)
 	}
