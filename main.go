@@ -13,7 +13,7 @@ import (
 
 const DEBUG = false
 
-const MaxTimeMsCg = 100
+const MaxTimeMsCg = 145
 const MaxTimeMsLocal = 10 * 1000
 
 var nodeCount = 0
@@ -255,6 +255,8 @@ func showTree(node *MCTSNode, padding int) {
 }
 
 func mcts(node *MCTSNode, startTime int64, maxTimeMs int64, maxIterations int) *MCTSNode {
+	debug("Starting MCTS")
+
 	playouts = 0
 	if DEBUG {
 		debug("initial node", showNode(node))
@@ -274,6 +276,8 @@ func mcts(node *MCTSNode, startTime int64, maxTimeMs int64, maxIterations int) *
 		}
 	}
 
+	debug("MCTS finished")
+
 	var bestChild *MCTSNode
 	var bestValue int
 	for childId := 0; childId < len(node.children); childId++ {
@@ -282,6 +286,8 @@ func mcts(node *MCTSNode, startTime int64, maxTimeMs int64, maxIterations int) *
 			bestValue = node.children[childId].visits
 		}
 	}
+
+	debug("Found best child", showNode(bestChild))
 
 	return bestChild
 }
