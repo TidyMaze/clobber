@@ -13,7 +13,7 @@ import (
 
 const DEBUG = false
 
-const MaxTimeMsCg = 120
+const MaxTimeMsCg = 100
 const MaxTimeMsLocal = 10 * 1000
 
 var nodeCount = 0
