@@ -263,7 +263,19 @@ func mcts(node *MCTSNode, startTime int64, maxTimeMs int64, maxIterations int) *
 		showTree(node, 0)
 	}
 
-	for i := 0; i < maxIterations && (time.Now().UnixMilli()-startTime) < maxTimeMs; i++ {
+	var nextTimeLog = int64(100)
+
+	for i := 0; i < maxIterations; i++ {
+		elapsed := (time.Now().UnixMilli() - startTime)
+		if elapsed > maxTimeMs {
+			break
+		} else if elapsed >= nextTimeLog {
+			debug("elapsed", elapsed)
+			nextTimeLog += int64(10)
+		} else {
+
+		}
+
 		selectedNode := selectionMCTS(node)
 		expandMCTS(selectedNode)
 		child, winner := simulateMCTS(selectedNode)
