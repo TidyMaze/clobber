@@ -34,7 +34,7 @@ var state = State{
 
 func findBestActionFromInitialGrid(maxIterations int) {
 	startTime := time.Now().UnixMilli()
-	rootNode := &MCTSNode{uint32(nodeCount), state, Action{-1, -1}, 0, 0, nil, []MCTSNode{}}
+	rootNode := &MCTSNode{uint32(nodeCount), state, Action{-1, -1}, 0, 0, nil, []*MCTSNode{}}
 	_, _ = runMCTSSearch(rootNode, startTime, MaxTimeMsLocal, maxIterations)
 	// debug("best", bestAction, "value", bestValue, "playouts", playouts)
 }

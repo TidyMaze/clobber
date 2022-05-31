@@ -119,7 +119,7 @@ type MCTSNode struct {
 	visits   int
 	wins     int
 	parent   *MCTSNode
-	children []MCTSNode
+	children []*MCTSNode
 }
 
 func uctMCTS(node *MCTSNode) float64 {
@@ -164,10 +164,10 @@ func selectionMCTS(node *MCTSNode) *MCTSNode {
 	var bestValue float64
 
 	for childId := 0; childId < len(node.children); childId++ {
-		value := uctMCTS(&node.children[childId])
+		value := uctMCTS(node.children[childId])
 
 		if bestChild == nil || value > bestValue {
-			bestChild = &node.children[childId]
+			bestChild = node.children[childId]
 			bestValue = value
 		}
 	}
@@ -186,7 +186,7 @@ func expandMCTS(node *MCTSNode) {
 
 	max := len(actions)
 
-	node.children = make([]MCTSNode, max)
+	node.children = make([]*MCTSNode, max)
 
 	for i := 0; i < max; i++ {
 		action := &(actions)[i]
@@ -198,7 +198,7 @@ func expandMCTS(node *MCTSNode) {
 			0,
 			0,
 			node,
-			make([]MCTSNode, 0),
+			make([]*MCTSNode, 0),
 		}
 		applyActionMut(&newNode.state, action)
 		nodeCount++
@@ -207,7 +207,7 @@ func expandMCTS(node *MCTSNode) {
 		//debug(fmt.Sprintf("expandMCTS child %s", showNode(child)))
 		// }
 
-		node.children[i] = *newNode
+		node.children[i] = newNode
 	}
 }
 
@@ -220,11 +220,11 @@ func simulateMCTS(node *MCTSNode) (*MCTSNode, Player) {
 	child := node.children[rand.Intn(len(node.children))]
 
 	if DEBUG {
-		debug(fmt.Sprintf("simulateMCTS picked child %s", showNode(&child)))
+		debug(fmt.Sprintf("simulateMCTS picked child %s", showNode(child)))
 		showTree(node, 0)
 	}
 
-	return &child, playUntilEnd(child.state)
+	return child, playUntilEnd(child.state)
 }
 
 func backPropagateMCTS(node *MCTSNode, winner Player) {
@@ -250,7 +250,7 @@ func showTree(node *MCTSNode, padding int) {
 		debug(strings.Repeat(" ", padding) + showNode(node))
 	}
 	for _, child := range node.children {
-		showTree(&child, padding+2)
+		showTree(child, padding+2)
 	}
 }
 
@@ -294,7 +294,7 @@ func mcts(node *MCTSNode, startTime int64, maxTimeMs int64, maxIterations int) *
 	var bestValue int
 	for childId := 0; childId < len(node.children); childId++ {
 		if bestChild == nil || node.children[childId].visits > bestValue {
-			bestChild = &node.children[childId]
+			bestChild = node.children[childId]
 			bestValue = node.children[childId].visits
 		}
 	}
@@ -399,14 +399,14 @@ func main() {
 		}
 
 		if rootNode == nil {
-			rootNode = &MCTSNode{uint32(nodeCount), state, Action{-1, -1}, 0, 0, nil, []MCTSNode{}}
+			rootNode = &MCTSNode{uint32(nodeCount), state, Action{-1, -1}, 0, 0, nil, []*MCTSNode{}}
 			debug("new rootNode")
 		} else {
 			var alreadyExploredChild *MCTSNode = nil
 
 			for i := 0; i < len(rootNode.children); i++ {
 				for j := 0; j < len(rootNode.children[i].children); j++ {
-					childNode := &rootNode.children[i].children[j]
+					childNode := rootNode.children[i].children[j]
 					if childNode.state.grid == state.grid && childNode.state.player == state.player {
 						alreadyExploredChild = childNode
 					}
