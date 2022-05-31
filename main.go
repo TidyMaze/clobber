@@ -360,7 +360,10 @@ func main() {
 			// line: horizontal row
 			var line string
 			_, _ = fmt.Scan(&line)
-			startTime = time.Now().UnixMilli()
+
+			if startTime == 0 {
+				startTime = time.Now().UnixMilli()
+			}
 
 			for j := int8(0); j < boardSize; j++ {
 				grid[charToCell(line[j])] ^= indexMaskCache[i*int8(8)+j]
