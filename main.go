@@ -263,7 +263,7 @@ func mcts(node *MCTSNode, startTime int64, maxTimeMs int64, maxIterations int) *
 		showTree(node, 0)
 	}
 
-	var nextTimeLog = int64(100)
+	var nextTimeLog = int64(50)
 
 	for i := 0; i < maxIterations; i++ {
 		elapsed := (time.Now().UnixMilli() - startTime)
