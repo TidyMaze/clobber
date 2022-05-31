@@ -270,7 +270,7 @@ func mcts(node *MCTSNode, startTime int64, maxTimeMs int64, maxIterations int) *
 		if elapsed > maxTimeMs {
 			break
 		} else if elapsed >= nextTimeLog {
-			debug("elapsed", elapsed)
+			debug("elapsed", elapsed, "iteration", i)
 			nextTimeLog += int64(10)
 		} else {
 
