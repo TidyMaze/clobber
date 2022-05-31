@@ -329,8 +329,9 @@ func main() {
 
 	myPlayer := parsePlayer(color[0])
 
-	turn := 0
+	var rootNode *MCTSNode = nil
 
+	turn := 0
 	for {
 		turn++
 
@@ -376,7 +377,31 @@ func main() {
 			panic("invalid number of actions: " + strconv.Itoa(len(validActions)) + " != " + strconv.Itoa(actionsCount))
 		}
 
-		bestAction, bestValue := runMCTSSearch(state, startTime, MaxTimeMsCg, 10000000)
+		if rootNode == nil {
+			rootNode = &MCTSNode{uint32(nodeCount), state, Action{-1, -1}, 0, 0, nil, []MCTSNode{}}
+			debug("new rootNode")
+		} else {
+			var alreadyExploredChild *MCTSNode = nil
+
+			for i := 0; i < len(rootNode.children); i++ {
+				for j := 0; j < len(rootNode.children[i].children); j++ {
+					childNode := &rootNode.children[i].children[j]
+					if childNode.state.grid == state.grid && childNode.state.player == state.player {
+						alreadyExploredChild = childNode
+					}
+				}
+			}
+
+			if alreadyExploredChild == nil {
+				panic(fmt.Sprintf("no child found for state %v in rootNode.children %v", state, rootNode.children))
+			} else {
+				debug("Found existing explored child", showNode(alreadyExploredChild))
+				alreadyExploredChild.parent = nil
+				rootNode = alreadyExploredChild
+			}
+		}
+
+		bestAction, bestValue := runMCTSSearch(rootNode, startTime, MaxTimeMsCg, 10000000)
 		debug("bestAction", bestAction, "bestValue", bestValue, "after", playouts, "playouts")
 
 		fmt.Printf("%s %.2f\n", bestAction, bestValue)
@@ -384,15 +409,14 @@ func main() {
 	}
 }
 
-func runMCTSSearch(state State, startTime int64, maxTime int64, maxIterations int) (*Action, float64) {
+func runMCTSSearch(rootNode *MCTSNode, startTime int64, maxTime int64, maxIterations int) (*Action, float64) {
 	nodeCount = 0
-	rootNode := MCTSNode{uint32(nodeCount), state, Action{-1, -1}, 0, 0, nil, []MCTSNode{}}
 
 	// panic with rootNode size
 	// panic("rootNode size: " + fmt.Sprint(unsafe.Sizeof(rootNode)))
 
 	nodeCount++
-	bestNode := mcts(&rootNode, startTime, maxTime, maxIterations)
+	bestNode := mcts(rootNode, startTime, maxTime, maxIterations)
 	return &bestNode.action, float64(bestNode.visits)
 }
 
