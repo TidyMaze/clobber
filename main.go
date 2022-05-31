@@ -13,7 +13,7 @@ import (
 
 const DEBUG = false
 
-const MaxTimeMsCg = 100
+const MaxTimeMsCg = 145 // 100 => 21.14 score
 const MaxTimeMsLocal = 10 * 1000
 
 var nodeCount = 0
